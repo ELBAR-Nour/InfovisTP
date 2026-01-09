@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Visual Analytics Tool</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading healthcare data...</p>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">H+</div>
+                    <div>
+                        <h1 class="header-title">Healthcare Analytics</h1>
+                        <p class="header-subtitle">Interactive Visual Dashboard</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="patient-count"><span id="filtered-count">0</span> patients</p>
+                    <p id="total-label" class="header-subtitle" style="display: none;">of <span id="total-count">0</span> total</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="filters-bar">
+    <div class="filters-wrapper">
+        
+        <div class="filter-group">
+            <div class="filter-header">
+                <span class="filter-icon">🧪</span>
+                <span class="filter-label">Test Outcome</span>
+            </div>
+            <div class="filter-actions">
+                <button class="filter-chip" data-filter="Normal" onclick="setFilter('testResult', 'Normal')">Normal</button>
+                <button class="filter-chip" data-filter="Abnormal" onclick="setFilter('testResult', 'Abnormal')">Abnormal</button>
+                <button class="filter-chip" data-filter="Inconclusive" onclick="setFilter('testResult', 'Inconclusive')">Inconclusive</button>
+            </div>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-group">
+            <div class="filter-header">
+                <span class="filter-icon">👥</span>
+                <span class="filter-label">Age Bracket</span>
+            </div>
+            <div class="filter-actions">
+                <button class="filter-chip small" data-filter="0-18" onclick="setFilter('ageGroup', '0-18')">0-18</button>
+                <button class="filter-chip small" data-filter="19-40" onclick="setFilter('ageGroup', '19-40')">19-40</button>
+                <button class="filter-chip small" data-filter="41-65" onclick="setFilter('ageGroup', '41-65')">41-65</button>
+                <button class="filter-chip small" data-filter="65+" onclick="setFilter('ageGroup', '65+')">65+</button>
+            </div>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-group grow">
+            <div class="filter-header">
+                <span class="filter-icon">🩺</span>
+                <span class="filter-label">Diagnosis</span>
+            </div>
+            <div class="select-wrapper">
+                <select id="condition-select" class="filter-select" onchange="handleConditionChange()">
+                    <option value="">All Medical Conditions</option>
+                </select>
+                <div class="select-arrow">▼</div>
+            </div>
+        </div>
+
+        <div class="filter-actions-end">
+            <button class="btn-reset" onclick="clearAllFilters()">
+                <span>↻ Reset</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+        <div id="filters-display" class="active-filters-strip" style="display: none;">
+            <span class="strip-label">Active Filters:</span>
+            <div id="filter-badges" class="badges-container"></div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div>
+                        <p class="stat-label">Total Patients</p>
+                        <p class="stat-value" id="stat-patients">0</p>
+                        <p class="stat-subtitle">In current view</p>
+                    </div>
+                    <div class="stat-icon primary">👥</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Avg. Billing</p>
+                        <p class="stat-value" id="stat-billing">$0</p>
+                        <p class="stat-subtitle">Per admission</p>
+                    </div>
+                    <div class="stat-icon default">💵</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Avg. Stay</p>
+                        <p class="stat-value" id="stat-stay">0 days</p>
+                        <p class="stat-subtitle">Length of hospitalization</p>
+                    </div>
+                    <div class="stat-icon default">⏱️</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Abnormal Rate</p>
+                        <p class="stat-value" id="stat-abnormal">0%</p>
+                        <p class="stat-subtitle" id="stat-conditions">0 conditions tracked</p>
+                    </div>
+                    <div class="stat-icon" id="abnormal-icon">🩺</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Test Results Distribution</h3>
+                    <div class="chart-container" id="donut-chart"></div>
+                    <div class="legend" id="donut-legend"></div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title">Medical Conditions vs Test Results</h3>
+                    <div class="chart-container" id="conditions-chart"></div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title">Billing Amount Distribution</h3>
+                    <div class="chart-container" id="billing-chart"></div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title">Patient Demographics (Age Pyramid)</h3>
+                    <div class="chart-container" id="pyramid-chart"></div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: var(--chart-male);"></span>
+                            Male
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: var(--chart-female);"></span>
+                            Female
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Click on chart elements to filter data across all visualizations</p>
+        </footer>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- Scripts -->
+    <script src="js/tooltip.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/data.js"></script>
+</body>
+</html>
