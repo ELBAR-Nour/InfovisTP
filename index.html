@@ -166,16 +166,33 @@
 
         <footer class="footer">
             <p>Click on chart elements to filter data across all visualizations</p>
+            <button class="btn-analysis" onclick="openAnalysis()">
+                <span>🔬</span> Run Classification Analysis
+            </button>
         </footer>
     </div>
 
     <!-- Tooltip -->
     <div class="tooltip" id="tooltip"></div>
 
+    <!-- Analysis Section -->
+    <div id="analysis-section" class="analysis-section" style="display: none;">
+        <div class="analysis-container">
+            <div class="analysis-header">
+                <h2>Multi-Class Classification Analysis: Test Results</h2>
+                <button class="btn-close" onclick="closeAnalysis()">×</button>
+            </div>
+            <div class="analysis-content">
+                <div id="analysis-output" class="analysis-output"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="js/tooltip.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/analysis.js"></script>
 </body>
 </html>
