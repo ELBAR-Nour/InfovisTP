@@ -16,7 +16,7 @@ function setFilter(key, value) {
 }
 
 function clearAllFilters() {
-    filters = { testResult: null, medicalCondition: null, ageGroup: null };
+    filters = { testResult: null, medicalCondition: null, ageGroup: null, hospital: null };
     applyFilters();
 }
 
@@ -28,14 +28,11 @@ function handleConditionChange() {
 
 function updateFilterUI() {
     // Update test result buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    document.querySelectorAll('.filter-chip').forEach(btn => {
         const btnText = btn.textContent.trim();
-        if (filters.testResult === btnText) {
+        btn.classList.remove('active');
+        if (filters.testResult === btnText || filters.ageGroup === btnText) {
             btn.classList.add('active');
-        } else if (filters.ageGroup === btnText) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
         }
     });
 
@@ -45,7 +42,7 @@ function updateFilterUI() {
         select.value = filters.medicalCondition || '';
     }
 
-    // Update filter badges display
+    // Update filter badges display with better styling
     const hasFilters = Object.values(filters).some(v => v !== null);
     const filtersDisplay = document.getElementById('filters-display');
     if (filtersDisplay) {
@@ -55,35 +52,44 @@ function updateFilterUI() {
     const badgesContainer = document.getElementById('filter-badges');
     if (badgesContainer) {
         badgesContainer.innerHTML = '';
+        const filterCount = Object.values(filters).filter(v => v !== null).length;
+        
+        if (filterCount > 0) {
+            const countBadge = document.createElement('span');
+            countBadge.className = 'filter-count-badge';
+            countBadge.textContent = filterCount;
+            badgesContainer.appendChild(countBadge);
+        }
+
         if (filters.testResult) {
             badgesContainer.innerHTML += `
-                <span class="filter-badge">
-                    Test Result: ${filters.testResult}
-                    <button onclick="setFilter('testResult', '${filters.testResult}')">×</button>
+                <span class="filter-badge filter-badge-test">
+                    <span class="badge-label">${filters.testResult}</span>
+                    <button class="badge-remove" onclick="setFilter('testResult', '${filters.testResult}')" title="Remove">×</button>
                 </span>
             `;
         }
         if (filters.medicalCondition) {
             badgesContainer.innerHTML += `
-                <span class="filter-badge">
-                    Condition: ${filters.medicalCondition}
-                    <button onclick="setFilter('medicalCondition', '${filters.medicalCondition}')">×</button>
+                <span class="filter-badge filter-badge-condition">
+                    <span class="badge-label">${filters.medicalCondition}</span>
+                    <button class="badge-remove" onclick="setFilter('medicalCondition', '${filters.medicalCondition}')" title="Remove">×</button>
                 </span>
             `;
         }
         if (filters.ageGroup) {
             badgesContainer.innerHTML += `
-                <span class="filter-badge">
-                    Age: ${filters.ageGroup}
-                    <button onclick="setFilter('ageGroup', '${filters.ageGroup}')">×</button>
+                <span class="filter-badge filter-badge-age">
+                    <span class="badge-label">${filters.ageGroup}</span>
+                    <button class="badge-remove" onclick="setFilter('ageGroup', '${filters.ageGroup}')" title="Remove">×</button>
                 </span>
             `;
         }
         if (filters.hospital) {
             badgesContainer.innerHTML += `
-                <span class="filter-badge">
-                    Hospital: ${filters.hospital}
-                    <button onclick="setFilter('hospital', '${filters.hospital}')">×</button>
+                <span class="filter-badge filter-badge-hospital">
+                    <span class="badge-label">${filters.hospital}</span>
+                    <button class="badge-remove" onclick="setFilter('hospital', '${filters.hospital}')" title="Remove">×</button>
                 </span>
             `;
         }

@@ -60,14 +60,22 @@ async function loadData() {
     try {
         let parsed = [];
         try {
-            const csvData = await d3.csv('data/healthcare_dataset.csv');
+            const csvData = await d3.csv('data/healthcare_dataset.csv');            console.log(`✓ CSV loaded: ${csvData.length} records`);
             parsed = csvData.slice(0, 5000).map(parseRecord).filter(r => r !== null);
-        } catch (e) { console.log('CSV not found, using generated sample data'); }
+            console.log(`✓ Parsed: ${parsed.length} valid records`);
+        } catch (e) { 
+            console.warn('CSV not found, using generated sample data:', e);
+        }
 
-        if (parsed.length === 0) parsed = generateSampleData(5000);
+        if (parsed.length === 0) {
+            console.warn('⚠ No valid records from CSV, generating fallback data');
+        }
 
         allData = parsed;
         filteredData = parsed;
+
+        console.log(`✓ Data ready: ${allData.length} records`);
+        console.log(`✓ Unique hospitals: ${[...new Set(allData.map(d => d.hospital))].join(', ')}`);
 
         document.getElementById('loading').style.display = 'none';
         document.getElementById('app').style.display = 'block';
@@ -116,60 +124,12 @@ function updateFiltersBar() {
     // Keeping this stub to avoid breaking any references
 }
 
-function generateSampleData(count) {
-    const conditions = ['Cancer', 'Obesity', 'Diabetes', 'Asthma', 'Hypertension', 'Arthritis'];
-    const admissionTypes = ['Urgent', 'Emergency', 'Elective'];
-    const testResultsArr = ['Normal', 'Abnormal', 'Inconclusive'];
-    const genders = ['Male', 'Female'];
-    const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-    const medications = ['Paracetamol', 'Ibuprofen', 'Aspirin', 'Lipitor', 'Penicillin'];
-    const insurers = ['Blue Cross', 'Medicare', 'Aetna', 'UnitedHealthcare', 'Cigna'];
-    const hospitals = ['City General', 'Regional Medical', 'St. Marys Hospital', 'University Hospital', 'Community Health'];
-    const doctors = ['Dr. Smith', 'Dr. Johnson', 'Dr. Williams', 'Dr. Brown', 'Dr. Davis'];
 
-    const seededRandom = (seed) => {
-        const x = Math.sin(seed) * 10000;
-        return x - Math.floor(x);
-    };
-
-    const data = [];
-    for (let i = 0; i < count; i++) {
-        const seed = i + 1;
-        const age = Math.floor(seededRandom(seed * 1) * 70) + 15;
-        const lengthOfStay = Math.floor(seededRandom(seed * 6) * 25) + 1;
-        const baseDate = new Date('2020-01-01');
-        const daysToAdd = Math.floor(seededRandom(seed * 7) * 1500);
-        const admissionDate = new Date(baseDate);
-        admissionDate.setDate(admissionDate.getDate() + daysToAdd);
-        const dischargeDate = new Date(admissionDate);
-        dischargeDate.setDate(dischargeDate.getDate() + lengthOfStay);
-
-        data.push({
-            name: `Patient ${i + 1}`,
-            age: age,
-            gender: genders[Math.floor(seededRandom(seed * 2) * genders.length)],
-            bloodType: bloodTypes[Math.floor(seededRandom(seed * 8) * bloodTypes.length)],
-            medicalCondition: conditions[Math.floor(seededRandom(seed * 3) * conditions.length)],
-            dateOfAdmission: admissionDate,
-            doctor: doctors[Math.floor(seededRandom(seed * 9) * doctors.length)],
-            hospital: hospitals[Math.floor(seededRandom(seed * 10) * hospitals.length)],
-            insuranceProvider: insurers[Math.floor(seededRandom(seed * 11) * insurers.length)],
-            billingAmount: Math.floor(seededRandom(seed * 12) * 48000) + 2000,
-            roomNumber: Math.floor(seededRandom(seed * 13) * 400) + 100,
-            admissionType: admissionTypes[Math.floor(seededRandom(seed * 4) * admissionTypes.length)],
-            dischargeDate: dischargeDate,
-            medication: medications[Math.floor(seededRandom(seed * 14) * medications.length)],
-            testResults: testResultsArr[Math.floor(seededRandom(seed * 5) * testResultsArr.length)],
-            lengthOfStay: lengthOfStay,
-            ageGroup: getAgeGroup(age)
-        });
-    }
-    return data;
-}
 
 function updateDashboard() {
     updateStats();
     updateFiltersBar();
+
     if (typeof updateFilterUI === 'function') updateFilterUI();
     if (typeof updateCharts === 'function') updateCharts();
     if (typeof updateHospitalMap === 'function') updateHospitalMap();
@@ -192,5 +152,9 @@ function populateConditionSelect() {
     }
 }
 
-// Start the application
-loadData();
+// Start the application when D3 is ready
+if (typeof d3 !== 'undefined') {
+    loadData();
+} else {
+    window.addEventListener('load', loadData);
+}

@@ -29,9 +29,14 @@
                         <p class="header-subtitle">Interactive Visual Dashboard</p>
                     </div>
                 </div>
-                <div>
-                    <p class="patient-count"><span id="filtered-count">0</span> patients</p>
-                    <p id="total-label" class="header-subtitle" style="display: none;">of <span id="total-count">0</span> total</p>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <button id="help-btn" class="help-button" title="View dashboard guide" onclick="openHelpModal()">
+                        <span style="font-size: 20px;">❓</span>
+                    </button>
+                    <div>
+                        <p class="patient-count"><span id="filtered-count">0</span> patients</p>
+                        <p id="total-label" class="header-subtitle" style="display: none;">of <span id="total-count">0</span> total</p>
+                    </div>
                 </div>
             </div>
         </header>
@@ -45,9 +50,9 @@
                 <span class="filter-label">Test Outcome</span>
             </div>
             <div class="filter-actions">
-                <button class="filter-chip" data-filter="Normal" onclick="setFilter('testResult', 'Normal')">Normal</button>
-                <button class="filter-chip" data-filter="Abnormal" onclick="setFilter('testResult', 'Abnormal')">Abnormal</button>
-                <button class="filter-chip" data-filter="Inconclusive" onclick="setFilter('testResult', 'Inconclusive')">Inconclusive</button>
+                <button class="filter-chip" data-filter="Normal" onclick="setFilter('testResult', 'Normal')" title="Show only Normal test results">Normal</button>
+                <button class="filter-chip" data-filter="Abnormal" onclick="setFilter('testResult', 'Abnormal')" title="Show only Abnormal test results">Abnormal</button>
+                <button class="filter-chip" data-filter="Inconclusive" onclick="setFilter('testResult', 'Inconclusive')" title="Show only Inconclusive results">Inconclusive</button>
             </div>
         </div>
 
@@ -59,10 +64,10 @@
                 <span class="filter-label">Age Bracket</span>
             </div>
             <div class="filter-actions">
-                <button class="filter-chip small" data-filter="0-18" onclick="setFilter('ageGroup', '0-18')">0-18</button>
-                <button class="filter-chip small" data-filter="19-40" onclick="setFilter('ageGroup', '19-40')">19-40</button>
-                <button class="filter-chip small" data-filter="41-65" onclick="setFilter('ageGroup', '41-65')">41-65</button>
-                <button class="filter-chip small" data-filter="65+" onclick="setFilter('ageGroup', '65+')">65+</button>
+                <button class="filter-chip small" data-filter="0-18" onclick="setFilter('ageGroup', '0-18')" title="Children and teens">0-18</button>
+                <button class="filter-chip small" data-filter="19-40" onclick="setFilter('ageGroup', '19-40')" title="Young adults">19-40</button>
+                <button class="filter-chip small" data-filter="41-65" onclick="setFilter('ageGroup', '41-65')" title="Middle-aged adults">41-65</button>
+                <button class="filter-chip small" data-filter="65+" onclick="setFilter('ageGroup', '65+')" title="Seniors">65+</button>
             </div>
         </div>
 
@@ -132,6 +137,49 @@
                 </div>
             </div>
 
+            <!-- Help Modal -->
+            <div id="help-modal" class="modal" onclick="closeHelpModal(event)">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <button class="modal-close" onclick="closeHelpModal()">×</button>
+                    <h2 class="modal-title">Dashboard Guide</h2>
+                    
+                    <div class="guide-section">
+                        <h3>Overview First</h3>
+                        <p>The statistics cards at the top display key metrics about your healthcare data. Begin here to understand the overall dataset composition and patterns.</p>
+                    </div>
+
+                    <div class="guide-section">
+                        <h3>Filter & Explore</h3>
+                        <p>Use the filter controls to narrow down your data by test results, age groups, or medical conditions. Each filter update instantly reflects across all visualizations.</p>
+                        <div class="filter-help">
+                            <div><strong>Test Outcome:</strong> Normal, Abnormal, or Inconclusive</div>
+                            <div><strong>Age Groups:</strong> 0-18, 19-40, 41-65, 65+</div>
+                            <div><strong>Medical Conditions:</strong> Cancer, Obesity, Diabetes, and more</div>
+                            <div><strong>Hospital Location:</strong> Click map markers for location-specific data</div>
+                        </div>
+                    </div>
+
+                    <div class="guide-section">
+                        <h3>Interactive Visualizations</h3>
+                        <p>Click on any chart element to drill down into details. Hover over data points to see additional information. All charts are linked—filtering in one updates all others.</p>
+                    </div>
+
+                    <div class="guide-section">
+                        <h3>Hospital Map</h3>
+                        <p>The spatial view displays hospital locations with color-coded markers representing dominant test result types. Click any marker to filter all data by that facility.</p>
+                    </div>
+
+                    <div class="guide-section">
+                        <h3>Reset Filters</h3>
+                        <p>Use the Reset button at any time to clear all active filters and view the complete dataset again.</p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn-modal" onclick="closeHelpModal()">Close</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Charts Grid -->
             <div class="charts-grid">
                 <div class="chart-card">
@@ -166,10 +214,15 @@
                 </div>
             </div>
 
-            <div class="chart-card">
+            <!-- Hospital Map 
                 <h3 class="chart-title">Hospital Map</h3>
                 <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+            </div>-->
+            <div class="chart-card">
+            <h3 class="chart-title">Hospital Locations</h3>
+            <div id="map" style="height: 420px;"></div>
             </div>
+
 
         </main>
 
@@ -181,11 +234,32 @@
     <!-- Tooltip -->
     <div class="tooltip" id="tooltip"></div>
 
+    <!-- Help Modal Functions -->
+    <script>
+        function openHelpModal() {
+            document.getElementById('help-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeHelpModal(event) {
+            if (event && event.target.id !== 'help-modal') return;
+            document.getElementById('help-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeHelpModal();
+            }
+        });
+    </script>
+
     <!-- Scripts -->
+    <script src="js/data.js"></script>
     <script src="js/tooltip.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/charts.js"></script>
-    <script src="js/data.js"></script>
     <script src="js/map.js"></script>
 
 </body>
