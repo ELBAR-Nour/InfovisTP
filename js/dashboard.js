@@ -3,6 +3,7 @@ function applyFilters() {
         if (filters.testResult && r.testResults !== filters.testResult) return false;
         if (filters.medicalCondition && r.medicalCondition !== filters.medicalCondition) return false;
         if (filters.ageGroup && r.ageGroup !== filters.ageGroup) return false;
+        if (filters.hospital && r.hospital !== filters.hospital) return false;
         return true;
     });
     updateDashboard();
@@ -75,6 +76,14 @@ function updateFilterUI() {
                 <span class="filter-badge">
                     Age: ${filters.ageGroup}
                     <button onclick="setFilter('ageGroup', '${filters.ageGroup}')">×</button>
+                </span>
+            `;
+        }
+        if (filters.hospital) {
+            badgesContainer.innerHTML += `
+                <span class="filter-badge">
+                    Hospital: ${filters.hospital}
+                    <button onclick="setFilter('hospital', '${filters.hospital}')">×</button>
                 </span>
             `;
         }

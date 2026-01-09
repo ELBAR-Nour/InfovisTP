@@ -6,6 +6,9 @@
     <title>Healthcare Visual Analytics Tool</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.26/"></script>
+
 </head>
 <body>
     <!-- Loading State -->
@@ -162,6 +165,12 @@
                     </div>
                 </div>
             </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">Hospital Map</h3>
+                <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+            </div>
+
         </main>
 
         <footer class="footer">
@@ -177,5 +186,7 @@
     <script src="js/dashboard.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/map.js"></script>
+
 </body>
 </html>

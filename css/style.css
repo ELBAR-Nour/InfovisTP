@@ -621,4 +621,10 @@
         .grid path {
             stroke-width: 0;
         }
+
+        #map {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 12px;
+        }
+
   

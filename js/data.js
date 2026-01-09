@@ -1,7 +1,7 @@
 // ===== Global State =====
 let allData = [];
 let filteredData = [];
-let filters = { testResult: null, medicalCondition: null, ageGroup: null };
+let filters = { testResult: null, medicalCondition: null, ageGroup: null, hospital: null };
 
 const COLORS = { Normal: '#22c55e', Abnormal: '#ef4444', Inconclusive: '#f59e0b' };
 const AGE_GROUPS = ['0-18', '19-40', '41-65', '65+'];
@@ -172,6 +172,7 @@ function updateDashboard() {
     updateFiltersBar();
     if (typeof updateFilterUI === 'function') updateFilterUI();
     if (typeof updateCharts === 'function') updateCharts();
+    if (typeof updateHospitalMap === 'function') updateHospitalMap();
 }
 
 function populateConditionSelect() {
