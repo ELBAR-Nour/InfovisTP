@@ -64,6 +64,7 @@ function updateFilterUI() {
         if (filters.testResult) {
             badgesContainer.innerHTML += `
                 <span class="filter-badge filter-badge-test">
+                    <span class="badge-icon" title="Test Result">✓</span>
                     <span class="badge-label">${filters.testResult}</span>
                     <button class="badge-remove" onclick="setFilter('testResult', '${filters.testResult}')" title="Remove">×</button>
                 </span>
@@ -72,6 +73,7 @@ function updateFilterUI() {
         if (filters.medicalCondition) {
             badgesContainer.innerHTML += `
                 <span class="filter-badge filter-badge-condition">
+                    <span class="badge-icon" title="Medical Condition">✚</span>
                     <span class="badge-label">${filters.medicalCondition}</span>
                     <button class="badge-remove" onclick="setFilter('medicalCondition', '${filters.medicalCondition}')" title="Remove">×</button>
                 </span>
@@ -80,6 +82,7 @@ function updateFilterUI() {
         if (filters.ageGroup) {
             badgesContainer.innerHTML += `
                 <span class="filter-badge filter-badge-age">
+                    <span class="badge-icon" title="Age Group">◆</span>
                     <span class="badge-label">${filters.ageGroup}</span>
                     <button class="badge-remove" onclick="setFilter('ageGroup', '${filters.ageGroup}')" title="Remove">×</button>
                 </span>
@@ -88,6 +91,7 @@ function updateFilterUI() {
         if (filters.hospital) {
             badgesContainer.innerHTML += `
                 <span class="filter-badge filter-badge-hospital">
+                    <span class="badge-icon" title="Hospital">■</span>
                     <span class="badge-label">${filters.hospital}</span>
                     <button class="badge-remove" onclick="setFilter('hospital', '${filters.hospital}')" title="Remove">×</button>
                 </span>

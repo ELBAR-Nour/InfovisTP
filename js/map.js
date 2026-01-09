@@ -19,6 +19,35 @@ require([
   const hospitalsLayer = new GraphicsLayer();
   map.add(hospitalsLayer);
 
+  // Function to update map legend based on current COLORS
+  window.updateMapLegend = function() {
+    const legendDiv = document.getElementById('map-legend');
+    if (legendDiv) {
+      legendDiv.innerHTML = `
+        <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-family: Arial, sans-serif; font-size: 13px;">
+          <h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #1f2937;">Hospital Test Results</h4>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Normal}; border: 2px solid white;"></div>
+              <span>Normal Results</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Abnormal}; border: 2px solid white;"></div>
+              <span>Abnormal Results</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Inconclusive}; border: 2px solid white;"></div>
+              <span>Inconclusive Results</span>
+            </div>
+          </div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
+            <strong>💡 Tip:</strong> Click hospitals to filter data
+          </div>
+        </div>
+      `;
+    }
+  };
+
   // Map Legend (Shneiderman: Overview First)
   const legendDiv = document.createElement('div');
   legendDiv.id = 'map-legend';
@@ -27,15 +56,15 @@ require([
       <h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #1f2937;">Hospital Test Results</h4>
       <div style="display: flex; flex-direction: column; gap: 8px;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e; border: 2px solid white;"></div>
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Normal}; border: 2px solid white;"></div>
           <span>Normal Results</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid white;"></div>
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Abnormal}; border: 2px solid white;"></div>
           <span>Abnormal Results</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; border: 2px solid white;"></div>
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Inconclusive}; border: 2px solid white;"></div>
           <span>Inconclusive Results</span>
         </div>
       </div>

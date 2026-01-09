@@ -3,7 +3,8 @@ let allData = [];
 let filteredData = [];
 let filters = { testResult: null, medicalCondition: null, ageGroup: null, hospital: null };
 
-const COLORS = { Normal: '#22c55e', Abnormal: '#ef4444', Inconclusive: '#f59e0b' };
+// Dynamic COLORS based on vision type
+let COLORS = { Normal: '#22c55e', Abnormal: '#ef4444', Inconclusive: '#f59e0b' };
 const AGE_GROUPS = ['0-18', '19-40', '41-65', '65+'];
 
 function getAgeGroup(age) {
@@ -77,6 +78,12 @@ async function loadData() {
         console.log(`✓ Data ready: ${allData.length} records`);
         console.log(`✓ Unique hospitals: ${[...new Set(allData.map(d => d.hospital))].join(', ')}`);
 
+        // Apply color scheme based on vision type
+        const scheme = getColorScheme();
+        COLORS.Normal = scheme.Normal;
+        COLORS.Abnormal = scheme.Abnormal;
+        COLORS.Inconclusive = scheme.Inconclusive;
+
         document.getElementById('loading').style.display = 'none';
         document.getElementById('app').style.display = 'block';
 
@@ -89,7 +96,7 @@ async function loadData() {
     }
 }
 
-// Sample Data generator (keep your existing function)
+// Sample Data generator 
 function updateStats() {
     const count = filteredData.length;
     const avgBilling = count > 0 ? filteredData.reduce((sum, d) => sum + d.billingAmount, 0) / count : 0;
@@ -119,16 +126,12 @@ function updateStats() {
     document.getElementById('total-label').style.display = hasFilters ? 'block' : 'none';
 }
 
-function updateFiltersBar() {
-    // This function is now handled by updateFilterUI() in dashboard.js
-    // Keeping this stub to avoid breaking any references
-}
+
 
 
 
 function updateDashboard() {
     updateStats();
-    updateFiltersBar();
 
     if (typeof updateFilterUI === 'function') updateFilterUI();
     if (typeof updateCharts === 'function') updateCharts();

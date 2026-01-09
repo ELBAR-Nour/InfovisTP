@@ -11,6 +11,59 @@
 
 </head>
 <body>
+    <!-- Color Blindness Modal -->
+    <div id="colorblind-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeVisionModal()">×</button>
+            <h2>Color Vision Profile</h2>
+            <p style="color: #64748b; margin-bottom: 24px;">Select your color vision type to optimize chart colors for better accessibility:</p>
+            
+            <div class="vision-options">
+                <label class="vision-option">
+                    <input type="radio" name="vision-type" value="normal" checked>
+                    <div class="option-content">
+                        <div class="option-title">Normal Vision</div>
+                        <div class="option-desc">Standard RGB colors</div>
+                    </div>
+                </label>
+                
+                <label class="vision-option">
+                    <input type="radio" name="vision-type" value="protanopia">
+                    <div class="option-content">
+                        <div class="option-title">Protanopia</div>
+                        <div class="option-desc">Red-blind (1% of males)</div>
+                    </div>
+                </label>
+                
+                <label class="vision-option">
+                    <input type="radio" name="vision-type" value="deuteranopia">
+                    <div class="option-content">
+                        <div class="option-title">Deuteranopia</div>
+                        <div class="option-desc">Green-blind (1% of males)</div>
+                    </div>
+                </label>
+                
+                <label class="vision-option">
+                    <input type="radio" name="vision-type" value="tritanopia">
+                    <div class="option-content">
+                        <div class="option-title">Tritanopia</div>
+                        <div class="option-desc">Blue-blind (rare)</div>
+                    </div>
+                </label>
+                
+                <label class="vision-option">
+                    <input type="radio" name="vision-type" value="achromatopsia">
+                    <div class="option-content">
+                        <div class="option-title">Achromatopsia</div>
+                        <div class="option-desc">Complete color blindness (rare)</div>
+                    </div>
+                </label>
+            </div>
+            
+            <button id="confirm-vision" class="modal-btn" onclick="confirmVisionType()">Continue</button>
+        </div>
+    </div>
+
     <!-- Loading State -->
     <div id="loading" class="loading">
         <div class="spinner"></div>
@@ -30,6 +83,9 @@
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 20px;">
+                    <button id="vision-btn" class="header-button" title="Change color vision profile" onclick="openVisionSettings()" style="pointer-events: auto; cursor: pointer;">
+                        <span style="font-size: 18px;">👁️</span>
+                    </button>
                     <button id="help-btn" class="help-button" title="View dashboard guide" onclick="openHelpModal()">
                         <span style="font-size: 20px;">❓</span>
                     </button>
@@ -145,8 +201,13 @@
                     
                     <div class="guide-section">
                         <h3>Overview First</h3>
-                        <p>The statistics cards at the top display key metrics about your healthcare data. Begin here to understand the overall dataset composition and patterns.</p>
+                        <p>
+                            The statistics cards at the top display key metrics about your healthcare data.
+                            You can also set your <strong>color vision profile</strong> (👁️ button) to optimize chart colors for better accessibility.
+                            Begin here to understand the overall dataset composition and patterns.
+                        </p>
                     </div>
+
 
                     <div class="guide-section">
                         <h3>Filter & Explore</h3>
@@ -253,14 +314,53 @@
                 closeHelpModal();
             }
         });
+        // Modal functions are defined in colorblind.js
+        // These are kept for backward compatibility with onclick handlers
+        function closeVisionModal() {
+            hideColorBlindModal();
+        }
+
+
     </script>
 
     <!-- Scripts -->
+    <script src="js/colorblind.js"></script>
     <script src="js/data.js"></script>
     <script src="js/tooltip.js"></script>
     <script src="js/dashboard.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/map.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const visionType = localStorage.getItem('visionType');
+            if (!visionType) {
+                // First time user - show modal automatically
+                showColorBlindModal();
+            }
+            // Always load data regardless
+            loadData();
+
+            // Preselect previously saved vision type
+            if (visionType) {
+                const radio = document.querySelector(`input[name="vision-type"][value="${visionType}"]`);
+                if (radio) radio.checked = true;
+                // Apply saved color vision - colors will be applied when data loads
+                // via getColorScheme() in data.js
+            }
+            
+            // Ensure vision button always works - add event listener as backup
+            const visionBtn = document.getElementById('vision-btn');
+            if (visionBtn) {
+                visionBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openVisionSettings();
+                });
+            }
+        });
+
+    </script>
 
 </body>
 </html>
