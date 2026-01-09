@@ -1,5 +1,23 @@
 // ===== Enhanced Charts.js with Full Interactivity =====
 
+// Helper function to get current color scheme
+function getCurrentColorScheme() {
+    if (typeof window.currentColorScheme !== 'undefined') {
+        return window.currentColorScheme;
+    }
+    if (typeof getColorScheme === 'function') {
+        return getColorScheme();
+    }
+    // Fallback to default colors
+    return {
+        Normal: '#22c55e',
+        Abnormal: '#ef4444',
+        Inconclusive: '#f59e0b',
+        male: '#0ea5e9',
+        female: '#ec4899'
+    };
+}
+
 // ===== 1️⃣ Donut Chart: Test Results Distribution =====
 function drawDonutChart() {
     const container = document.getElementById('donut-chart');
@@ -197,21 +215,24 @@ function drawBillingChart() {
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom);
 
-    // Gradient
+    // Gradient - use colors from color scheme
+    const scheme = getCurrentColorScheme();
+    // Use unique ID to avoid conflicts when redrawing
+    const gradientId = 'billing-gradient-' + Date.now();
     const gradient = svg.append('defs')
         .append('linearGradient')
-        .attr('id', 'billing-gradient')
+        .attr('id', gradientId)
         .attr('x1', '0%').attr('y1', '100%')
         .attr('x2', '0%').attr('y2', '0%');
 
     gradient.append('stop')
         .attr('offset', '0%')
-        .attr('stop-color', '#0ea5e9')
+        .attr('stop-color', scheme.male || '#0ea5e9')
         .attr('stop-opacity', 0.8);
 
     gradient.append('stop')
         .attr('offset', '100%')
-        .attr('stop-color', '#14b8a6')
+        .attr('stop-color', scheme.female || '#ec4899')
         .attr('stop-opacity', 0.9);
 
     const g = svg.append('g')
@@ -248,7 +269,7 @@ function drawBillingChart() {
         .attr('y', d => y(d.length))
         .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 2))
         .attr('height', d => height - y(d.length))
-        .attr('fill', 'url(#billing-gradient)')
+        .attr('fill', `url(#${gradientId})`)
         .attr('rx', 2)
         .on('mouseover', function(event, d) {
             d3.select(this).attr('opacity', 0.8);
@@ -349,7 +370,8 @@ function drawPyramidChart() {
         .style('fill', 'var(--text-primary)')
         .text(d => d.ageGroup);
 
-    // Male bars
+    // Male bars - use color from scheme
+    const scheme = getCurrentColorScheme();
     svg.selectAll('.male-bar')
         .data(pyramidData)
         .enter()
@@ -358,7 +380,7 @@ function drawPyramidChart() {
         .attr('y', d => y(d.ageGroup))
         .attr('width', d => Math.max(0, width / 2 - xMale(d.male) - 25))
         .attr('height', y.bandwidth())
-        .attr('fill', '#0ea5e9')
+        .attr('fill', scheme.male || COLORS.male || '#0ea5e9')
         .attr('rx', 4)
         .attr('opacity', d => (!filters.ageGroup || d.ageGroup === filters.ageGroup) ? 0.85 : 0.2)
         .style('cursor', 'pointer')
@@ -372,7 +394,7 @@ function drawPyramidChart() {
         })
         .on('click', (event, d) => setFilter('ageGroup', d.ageGroup));
 
-    // Female bars
+    // Female bars - use color from scheme
     svg.selectAll('.female-bar')
         .data(pyramidData)
         .enter()
@@ -381,7 +403,7 @@ function drawPyramidChart() {
         .attr('y', d => y(d.ageGroup))
         .attr('width', d => Math.max(0, xFemale(d.female) - width / 2 - 25))
         .attr('height', y.bandwidth())
-        .attr('fill', '#ec4899')
+        .attr('fill', scheme.female || COLORS.female || '#ec4899')
         .attr('rx', 4)
         .attr('opacity', d => (!filters.ageGroup || d.ageGroup === filters.ageGroup) ? 0.85 : 0.2)
         .style('cursor', 'pointer')
@@ -421,10 +443,213 @@ function drawPyramidChart() {
         .text(d => d.female.toLocaleString());
 }
 
+
+// ===== 5️⃣ Length of Stay vs Admission Type & Age Interval =====
+function drawStayByAdmissionChart() {
+    const container = document.getElementById('stay-admission-chart');
+    container.innerHTML = '';
+
+    const margin = { top: 20, right: 20, bottom: 60, left: 60 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = 260 - margin.top - margin.bottom;
+
+    const svg = d3.select('#stay-admission-chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+    // Unique categories
+    const admissionTypes = [...new Set(filteredData.map(d => d.admissionType))];
+    const ageGroups = AGE_GROUPS;
+
+    // Aggregate data: average LOS per admissionType & ageGroup
+    const groupedData = admissionTypes.map(type => {
+        const typeData = filteredData.filter(d => d.admissionType === type);
+        const averages = {};
+        ageGroups.forEach(age => {
+            const ageData = typeData.filter(d => d.ageGroup === age);
+            averages[age] = ageData.length > 0
+                ? d3.mean(ageData, d => d.lengthOfStay)
+                : 0;
+        });
+        return { admissionType: type, ...averages };
+    });
+
+    const x0 = d3.scaleBand()
+        .domain(admissionTypes)
+        .range([0, width])
+        .padding(0.2);
+
+    const x1 = d3.scaleBand()
+        .domain(ageGroups)
+        .range([0, x0.bandwidth()])
+        .padding(0.05);
+
+    const yMax = d3.max(groupedData, d => d3.max(ageGroups, age => d[age])) || 0;
+    const y = d3.scaleLinear()
+        .domain([0, yMax])
+        .nice()
+        .range([height, 0]);
+
+    // Use colors from color scheme for age groups
+    const scheme = getCurrentColorScheme();
+    // Create a color scale that adapts to vision type
+    const ageGroupColors = ageGroups.map((age, i) => {
+        // Use scheme colors if available, otherwise fallback to distinct colors
+        if (i === 0) return scheme.male || '#0ea5e9';
+        if (i === 1) return scheme.female || '#ec4899';
+        if (i === 2) return scheme.Inconclusive || '#f59e0b';
+        return scheme.Abnormal || '#ef4444';
+    });
+    const colorScale = d3.scaleOrdinal()
+        .domain(ageGroups)
+        .range(ageGroupColors);
+
+    // Grid
+    svg.append('g')
+        .attr('class', 'grid')
+        .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(''));
+
+    // X axis
+    svg.append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .call(d3.axisBottom(x0))
+        .selectAll('text')
+        .attr('transform', 'rotate(-25)')
+        .style('text-anchor', 'end');
+
+    // Y axis
+    svg.append('g').call(d3.axisLeft(y).ticks(5));
+
+    // Bars
+    const typeGroups = svg.selectAll('.type-group')
+        .data(groupedData)
+        .enter()
+        .append('g')
+        .attr('transform', d => `translate(${x0(d.admissionType)},0)`);
+
+    typeGroups.selectAll('rect')
+        .data(d => ageGroups.map(age => ({ age, value: d[age], admissionType: d.admissionType })))
+        .enter()
+        .append('rect')
+        .attr('x', d => x1(d.age))
+        .attr('y', d => y(d.value))
+        .attr('width', x1.bandwidth())
+        .attr('height', d => height - y(d.value))
+        .attr('fill', d => colorScale(d.age))
+        .attr('rx', 3)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+            d3.select(this).attr('opacity', 0.8);
+            showTooltip(event, `${d.admissionType} - ${d.age}: ${d.value.toFixed(1)} days`);
+        })
+        .on('mouseout', function() {
+            d3.select(this).attr('opacity', 1);
+            hideTooltip();
+        })
+        .on('click', (event, d) => setFilter('ageGroup', d.age));
+
+    // Legend
+    const legend = document.getElementById('stay-admission-legend');
+    legend.innerHTML = ageGroups.map(age => `
+        <div class="legend-item" onclick="setFilter('ageGroup','${age}')">
+            <span class="legend-dot" style="background:${colorScale(age)}"></span>${age}
+        </div>
+    `).join('');
+}
+
+// ===== 6️⃣ Admission Trends Over Time =====
+function drawAdmissionTrendsChart() {
+    const container = document.getElementById('admission-trends-chart');
+    container.innerHTML = '';
+
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const width = container.clientWidth - margin.left - margin.right;
+    const height = 260 - margin.top - margin.bottom;
+
+    const svg = d3.select('#admission-trends-chart')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+    // Aggregate data by week/month
+    const parseTime = d3.timeWeek; // aggregate by week; you can use d3.timeMonth for monthly
+    const nested = d3.rollup(
+        filteredData,
+        v => v.length,
+        d => parseTime.floor(d.dateOfAdmission)
+    );
+
+    const data = Array.from(nested, ([date, count]) => ({ date, count }))
+        .sort((a, b) => a.date - b.date);
+
+    const x = d3.scaleTime()
+        .domain(d3.extent(data, d => d.date))
+        .range([0, width]);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.count) || 0])
+        .nice()
+        .range([height, 0]);
+
+    // Grid
+    svg.append('g')
+        .attr('class', 'grid')
+        .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(''));
+
+    // X axis
+    svg.append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .call(d3.axisBottom(x).ticks(6).tickFormat(d3.timeFormat("%b %d")));
+
+    // Y axis
+    svg.append('g').call(d3.axisLeft(y).ticks(5));
+
+    // Line generator
+    const line = d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d.count))
+        .curve(d3.curveMonotoneX);
+
+    // Draw line - use color from scheme
+    const scheme = getCurrentColorScheme();
+    svg.append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', scheme.male || COLORS.male || '#0ea5e9')
+        .attr('stroke-width', 2)
+        .attr('d', line);
+
+    // Points for tooltip
+    svg.selectAll('.point')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('cx', d => x(d.date))
+        .attr('cy', d => y(d.count))
+        .attr('r', 4)
+        .attr('fill', scheme.male || COLORS.male || '#0ea5e9')
+        .style('cursor', 'pointer')
+        .on('mouseover', (event, d) => {
+            showTooltip(event, `${d3.timeFormat("%b %d, %Y")(d.date)}: ${d.count} admissions`);
+        })
+        .on('mouseout', hideTooltip);
+}
+
+
+
 // ===== Update All Charts Function =====
 function updateCharts() {
     drawDonutChart();
     drawConditionsChart();
     drawBillingChart();
     drawPyramidChart();
+    drawStayByAdmissionChart();
+    drawAdmissionTrendsChart();
+
 }
+

@@ -1,7 +1,15 @@
 // ===== Global State =====
 let allData = [];
 let filteredData = [];
-let filters = { testResult: null, medicalCondition: null, ageGroup: null, hospital: null };
+let filters = { 
+    testResult: null, 
+    medicalCondition: null, 
+    ageGroup: null, 
+    hospital: null,
+    gender: null,
+    bloodType: null,
+    admissionYear: null
+};
 
 // Dynamic COLORS based on vision type
 let COLORS = { Normal: '#22c55e', Abnormal: '#ef4444', Inconclusive: '#f59e0b' };
@@ -83,11 +91,18 @@ async function loadData() {
         COLORS.Normal = scheme.Normal;
         COLORS.Abnormal = scheme.Abnormal;
         COLORS.Inconclusive = scheme.Inconclusive;
+        COLORS.male = scheme.male;
+        COLORS.female = scheme.female;
+        // Store color scheme globally for charts to access
+        window.currentColorScheme = scheme;
 
         document.getElementById('loading').style.display = 'none';
         document.getElementById('app').style.display = 'block';
 
         populateConditionSelect();
+        populateHospitalSelect();
+        populateBloodTypeSelect();
+        populateYearSelect();
         updateDashboard();
         window.addEventListener('resize', updateDashboard);
 
@@ -109,6 +124,30 @@ function updateStats() {
     document.getElementById('stat-stay').textContent = avgStay.toFixed(1) + ' days';
     document.getElementById('stat-abnormal').textContent = abnormalRate.toFixed(1) + '%';
     document.getElementById('stat-conditions').textContent = conditions + ' conditions tracked';
+
+    // Update patient coverage KPI
+    const totalPatients = allData.length;
+    const coveragePercent = totalPatients > 0 ? ((count / totalPatients) * 100).toFixed(1) : 0;
+    const coverageElement = document.getElementById('stat-coverage');
+    const coverageSubtitle = document.getElementById('stat-coverage-subtitle');
+    if (coverageElement) {
+        coverageElement.textContent = coveragePercent + '%';
+    }
+    if (coverageSubtitle) {
+        const hasFilters = Object.values(filters).some(v => v !== null);
+        coverageSubtitle.textContent = hasFilters 
+            ? `of ${totalPatients.toLocaleString()} total` 
+            : 'of total dataset';
+    }
+    
+    // Update patient subtitle to show total when filtered
+    const patientsSubtitle = document.getElementById('stat-patients-subtitle');
+    if (patientsSubtitle) {
+        const hasFilters = Object.values(filters).some(v => v !== null);
+        patientsSubtitle.textContent = hasFilters 
+            ? `Filtered (${totalPatients.toLocaleString()} total)` 
+            : 'In current view';
+    }
 
     const icon = document.getElementById('abnormal-icon');
     if (abnormalRate > 35) {
@@ -149,6 +188,57 @@ function populateConditionSelect() {
             const option = document.createElement('option');
             option.value = condition;
             option.textContent = condition;
+            select.appendChild(option);
+        });
+        select.value = currentValue;
+    }
+}
+
+function populateHospitalSelect() {
+    const hospitals = [...new Set(allData.map(d => d.hospital))].sort();
+    const select = document.getElementById('hospital-select');
+    if (select) {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">All Hospitals</option>';
+        hospitals.forEach(hospital => {
+            const option = document.createElement('option');
+            option.value = hospital;
+            option.textContent = hospital;
+            select.appendChild(option);
+        });
+        select.value = currentValue;
+    }
+}
+
+function populateBloodTypeSelect() {
+    const bloodTypes = [...new Set(allData.map(d => d.bloodType))].sort();
+    const select = document.getElementById('bloodtype-select');
+    if (select) {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">All Blood Types</option>';
+        bloodTypes.forEach(bloodType => {
+            const option = document.createElement('option');
+            option.value = bloodType;
+            option.textContent = bloodType;
+            select.appendChild(option);
+        });
+        select.value = currentValue;
+    }
+}
+
+function populateYearSelect() {
+    const years = [...new Set(allData
+        .map(d => d.dateOfAdmission ? d.dateOfAdmission.getFullYear() : null)
+        .filter(y => y !== null)
+    )].sort((a, b) => b - a); // Sort descending (newest first)
+    const select = document.getElementById('year-select');
+    if (select) {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">All Years</option>';
+        years.forEach(year => {
+            const option = document.createElement('option');
+            option.value = year.toString();
+            option.textContent = year.toString();
             select.appendChild(option);
         });
         select.value = currentValue;

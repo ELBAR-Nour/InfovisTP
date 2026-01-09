@@ -97,58 +97,114 @@
             </div>
         </header>
 
-        <div class="filters-bar">
-    <div class="filters-wrapper">
-        
-        <div class="filter-group">
-            <div class="filter-header">
-                <span class="filter-icon">🧪</span>
-                <span class="filter-label">Test Outcome</span>
+        <!-- Sidebar with Filters -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">
+                    <span class="sidebar-title-text">Filters</span>
+                </h2>
+                <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" title="Collapse/Expand sidebar">
+                    <span class="toggle-icon">◀</span>
+                </button>
             </div>
-            <div class="filter-actions">
-                <button class="filter-chip" data-filter="Normal" onclick="setFilter('testResult', 'Normal')" title="Show only Normal test results">Normal</button>
-                <button class="filter-chip" data-filter="Abnormal" onclick="setFilter('testResult', 'Abnormal')" title="Show only Abnormal test results">Abnormal</button>
-                <button class="filter-chip" data-filter="Inconclusive" onclick="setFilter('testResult', 'Inconclusive')" title="Show only Inconclusive results">Inconclusive</button>
-            </div>
-        </div>
+            
+            <div class="sidebar-content">
+                <div class="filter-section">
+                    <div class="filter-section-header">
+                        <span class="filter-icon">🧪</span>
+                        <span class="filter-label">Test Outcome</span>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="filter-chip" data-filter="Normal" onclick="setFilter('testResult', 'Normal')" title="Show only Normal test results">Normal</button>
+                        <button class="filter-chip" data-filter="Abnormal" onclick="setFilter('testResult', 'Abnormal')" title="Show only Abnormal test results">Abnormal</button>
+                        <button class="filter-chip" data-filter="Inconclusive" onclick="setFilter('testResult', 'Inconclusive')" title="Show only Inconclusive results">Inconclusive</button>
+                    </div>
+                </div>
 
-        <div class="filter-divider"></div>
+                <div class="filter-section">
+                    <div class="filter-section-header">
+                        <span class="filter-icon">👥</span>
+                        <span class="filter-label">Age Bracket</span>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="filter-chip small" data-filter="0-18" onclick="setFilter('ageGroup', '0-18')" title="Children and teens">0-18</button>
+                        <button class="filter-chip small" data-filter="19-40" onclick="setFilter('ageGroup', '19-40')" title="Young adults">19-40</button>
+                        <button class="filter-chip small" data-filter="41-65" onclick="setFilter('ageGroup', '41-65')" title="Middle-aged adults">41-65</button>
+                        <button class="filter-chip small" data-filter="65+" onclick="setFilter('ageGroup', '65+')" title="Seniors">65+</button>
+                    </div>
+                </div>
 
-        <div class="filter-group">
-            <div class="filter-header">
-                <span class="filter-icon">👥</span>
-                <span class="filter-label">Age Bracket</span>
-            </div>
-            <div class="filter-actions">
-                <button class="filter-chip small" data-filter="0-18" onclick="setFilter('ageGroup', '0-18')" title="Children and teens">0-18</button>
-                <button class="filter-chip small" data-filter="19-40" onclick="setFilter('ageGroup', '19-40')" title="Young adults">19-40</button>
-                <button class="filter-chip small" data-filter="41-65" onclick="setFilter('ageGroup', '41-65')" title="Middle-aged adults">41-65</button>
-                <button class="filter-chip small" data-filter="65+" onclick="setFilter('ageGroup', '65+')" title="Seniors">65+</button>
-            </div>
-        </div>
+                <div class="filter-section">
+                    <div class="filter-section-header">
+                        <span class="filter-icon">⚥</span>
+                        <span class="filter-label">Gender</span>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="filter-chip small" data-filter="Male" onclick="setFilter('gender', 'Male')" title="Show only Male patients">Male</button>
+                        <button class="filter-chip small" data-filter="Female" onclick="setFilter('gender', 'Female')" title="Show only Female patients">Female</button>
+                    </div>
+                </div>
 
-        <div class="filter-divider"></div>
+                <div class="filter-section">
+                    <div class="filter-section-header">
+                        <span class="filter-icon">🩺</span>
+                        <span class="filter-label">Diagnosis</span>
+                    </div>
+                    <div class="select-wrapper">
+                        <select id="condition-select" class="filter-select" onchange="handleConditionChange()">
+                            <option value="">All Medical Conditions</option>
+                        </select>
+                        <div class="select-arrow">▼</div>
+                    </div>
+                </div>
 
-        <div class="filter-group grow">
-            <div class="filter-header">
-                <span class="filter-icon">🩺</span>
-                <span class="filter-label">Diagnosis</span>
-            </div>
-            <div class="select-wrapper">
-                <select id="condition-select" class="filter-select" onchange="handleConditionChange()">
-                    <option value="">All Medical Conditions</option>
-                </select>
-                <div class="select-arrow">▼</div>
-            </div>
-        </div>
+                <div class="filter-section">
+                    <div class="filter-section-header">
+                        <span class="filter-icon">🏥</span>
+                        <span class="filter-label">Hospital</span>
+                    </div>
+                    <div class="select-wrapper">
+                        <select id="hospital-select" class="filter-select" onchange="handleHospitalChange()">
+                            <option value="">All Hospitals</option>
+                        </select>
+                        <div class="select-arrow">▼</div>
+                    </div>
+                </div>
 
-        <div class="filter-actions-end">
-            <button class="btn-reset" onclick="clearAllFilters()">
-                <span>↻ Reset</span>
-            </button>
-        </div>
-    </div>
-</div>
+                <div class="filter-section">
+                    <div class="filter-section-header">
+                        <span class="filter-icon">🩸</span>
+                        <span class="filter-label">Blood Type</span>
+                    </div>
+                    <div class="select-wrapper">
+                        <select id="bloodtype-select" class="filter-select" onchange="handleBloodTypeChange()">
+                            <option value="">All Blood Types</option>
+                        </select>
+                        <div class="select-arrow">▼</div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-section-header">
+                        <span class="filter-icon">📅</span>
+                        <span class="filter-label">Admission Year</span>
+                    </div>
+                    <div class="select-wrapper">
+                        <select id="year-select" class="filter-select" onchange="handleYearChange()">
+                            <option value="">All Years</option>
+                        </select>
+                        <div class="select-arrow">▼</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <button class="btn-reset" onclick="clearAllFilters()">
+                        <span>↻ Reset All Filters</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
 
         <div id="filters-display" class="active-filters-strip" style="display: none;">
             <span class="strip-label">Active Filters:</span>
@@ -156,16 +212,24 @@
         </div>
 
         <!-- Main Content -->
-        <main class="main">
+        <main class="main" id="main-content">
             <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-card primary">
                     <div>
                         <p class="stat-label">Total Patients</p>
                         <p class="stat-value" id="stat-patients">0</p>
-                        <p class="stat-subtitle">In current view</p>
+                        <p class="stat-subtitle" id="stat-patients-subtitle">In current view</p>
                     </div>
                     <div class="stat-icon primary">👥</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <p class="stat-label">Patient Coverage</p>
+                        <p class="stat-value" id="stat-coverage">0%</p>
+                        <p class="stat-subtitle" id="stat-coverage-subtitle">of total dataset</p>
+                    </div>
+                    <div class="stat-icon default">📊</div>
                 </div>
                 <div class="stat-card">
                     <div>
@@ -241,7 +305,7 @@
                 </div>
             </div>
 
-            <!-- Charts Grid -->
+            <!-- Charts Grid (First Row of Smaller Charts) -->
             <div class="charts-grid">
                 <div class="chart-card">
                     <h3 class="chart-title">Test Results Distribution</h3>
@@ -273,12 +337,21 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title">Length of Stay vs Admission Type & Age Interval</h3>
+                    <div class="chart-container" id="stay-admission-chart"></div>
+                    <div class="legend" id="stay-admission-legend"></div>
+                </div>
             </div>
 
-            <!-- Hospital Map 
-                <h3 class="chart-title">Hospital Map</h3>
-                <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
-            </div>-->
+            <!-- Full-Width Admission Trends Chart-->
+            <div class="chart-card full-width-chart">
+                <h3 class="chart-title">Admission Trends Over Time</h3>
+                <div class="chart-container" id="admission-trends-chart"></div>
+            </div>
+
+
             <div class="chart-card">
             <h3 class="chart-title">Hospital Locations</h3>
             <div id="map" style="height: 420px;"></div>
@@ -288,7 +361,7 @@
         </main>
 
         <footer class="footer">
-            <p>Click on chart elements to filter data across all visualizations</p>
+            <p>Made by Maroua + Imen + Rayane</p>
         </footer>
     </div>
 
@@ -308,14 +381,13 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Close modal with Escape key
+        
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeHelpModal();
             }
         });
-        // Modal functions are defined in colorblind.js
-        // These are kept for backward compatibility with onclick handlers
+        
         function closeVisionModal() {
             hideColorBlindModal();
         }
@@ -335,21 +407,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             const visionType = localStorage.getItem('visionType');
             if (!visionType) {
-                // First time user - show modal automatically
                 showColorBlindModal();
             }
-            // Always load data regardless
             loadData();
 
-            // Preselect previously saved vision type
             if (visionType) {
                 const radio = document.querySelector(`input[name="vision-type"][value="${visionType}"]`);
                 if (radio) radio.checked = true;
-                // Apply saved color vision - colors will be applied when data loads
-                // via getColorScheme() in data.js
+
             }
             
-            // Ensure vision button always works - add event listener as backup
             const visionBtn = document.getElementById('vision-btn');
             if (visionBtn) {
                 visionBtn.addEventListener('click', function(e) {
@@ -358,7 +425,30 @@
                     openVisionSettings();
                 });
             }
+            
+            const sidebarState = localStorage.getItem('sidebarCollapsed');
+            if (sidebarState === 'true') {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.classList.add('collapsed');
+                }
+            }
         });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.querySelector('.toggle-icon');
+
+            sidebar.classList.toggle('collapsed');
+
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+
+            if (icon) {
+                icon.textContent = isCollapsed ? '▶' : '◀';
+            }
+        }
+
 
     </script>
 

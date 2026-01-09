@@ -70,7 +70,13 @@ function updateAllChartColors() {
             COLORS.Normal = scheme.Normal;
             COLORS.Abnormal = scheme.Abnormal;
             COLORS.Inconclusive = scheme.Inconclusive;
+            // Also store gender colors for pyramid chart
+            COLORS.male = scheme.male;
+            COLORS.female = scheme.female;
         }
+        
+        // Store color scheme globally for other charts to access
+        window.currentColorScheme = scheme;
         
         // Check if app is visible and ready
         const app = document.getElementById('app');
