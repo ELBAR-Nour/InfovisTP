@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Healthcare Visual Analytics Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="stylesheet" href="https://js.arcgis.com/4.26/esri/themes/light/main.css">
@@ -72,7 +76,6 @@
 
     <!-- Main App -->
     <div id="app" style="display: none;">
-        <!-- Header -->
         <header class="header">
             <div class="header-content">
                 <div class="header-left">
@@ -83,11 +86,11 @@
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 20px;">
-                    <button id="vision-btn" class="header-button" title="Change color vision profile" onclick="openVisionSettings()" style="pointer-events: auto; cursor: pointer;">
-                        <span style="font-size: 18px;">👁️</span>
+                    <button id="vision-btn" class="header-button" title="Change color vision profile" onclick="openVisionSettings()">
+                        <i class="fa-solid fa-eye" style="font-size: 18px;"></i>
                     </button>
                     <button id="help-btn" class="help-button" title="View dashboard guide" onclick="openHelpModal()">
-                        <span style="font-size: 20px;">❓</span>
+                        <i class="fa-solid fa-circle-question" style="font-size: 20px;"></i>
                     </button>
                     <div>
                         <p class="patient-count"><span id="filtered-count">0</span> patients</p>
@@ -97,21 +100,20 @@
             </div>
         </header>
 
-        <!-- Sidebar with Filters -->
         <aside id="sidebar" class="sidebar">
             <div class="sidebar-header">
                 <h2 class="sidebar-title">
                     <span class="sidebar-title-text">Filters</span>
                 </h2>
                 <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" title="Collapse/Expand sidebar">
-                    <span class="toggle-icon">◀</span>
+                    <span class="toggle-icon"><i class="fa-solid fa-chevron-left"></i></span>
                 </button>
             </div>
             
             <div class="sidebar-content">
                 <div class="filter-section">
                     <div class="filter-section-header">
-                        <span class="filter-icon">🧪</span>
+                        <span class="filter-icon"><i class="fa-solid fa-flask-vial"></i></span>
                         <span class="filter-label">Test Outcome</span>
                     </div>
                     <div class="filter-actions">
@@ -123,7 +125,7 @@
 
                 <div class="filter-section">
                     <div class="filter-section-header">
-                        <span class="filter-icon">👥</span>
+                        <span class="filter-icon"><i class="fa-solid fa-layer-group"></i></span>
                         <span class="filter-label">Age Bracket</span>
                     </div>
                     <div class="filter-actions">
@@ -136,7 +138,7 @@
 
                 <div class="filter-section">
                     <div class="filter-section-header">
-                        <span class="filter-icon">⚥</span>
+                        <span class="filter-icon"><i class="fa-solid fa-venus-mars"></i></span>
                         <span class="filter-label">Gender</span>
                     </div>
                     <div class="filter-actions">
@@ -146,72 +148,87 @@
                 </div>
                 <div class="filter-section">
                 <div class="filter-section-header">
-                        <span class="filter-icon">💊</span>
+                        <span class="filter-icon"><i class="fa-solid fa-pills"></i></span>
                         <span class="filter-label">Medication</span>
                     </div>
-                    <div class="select-wrapper">
-                        <select id="medication-select" class="filter-select" onchange="handleMedicationChange()">
-                            <option value="">All Medications</option>
-                        </select>
-                        <div class="select-arrow">▼</div>
-                    </div>
+                <div class="select-wrapper">
+                    <select id="medication-select" class="filter-select" onchange="handleMedicationChange()">
+                        <option value="">All Medications</option>
+                    </select>
+                    <div class="select-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+                </div>
+
                 </div>
 
                 <div class="filter-section">
                     <div class="filter-section-header">
-                        <span class="filter-icon">🩺</span>
+                        <span class="filter-icon"><i class="fa-solid fa-clipboard-check"></i></span>
                         <span class="filter-label">Diagnosis</span>
                     </div>
                     <div class="select-wrapper">
                         <select id="condition-select" class="filter-select" onchange="handleConditionChange()">
                             <option value="">All Medical Conditions</option>
                         </select>
-                        <div class="select-arrow">▼</div>
+                        <div class="select-arrow"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                 </div>
 
                 <div class="filter-section">
                     <div class="filter-section-header">
-                        <span class="filter-icon">🏥</span>
+                        <span class="filter-icon"><i class="fa-solid fa-hospital"></i></span>
                         <span class="filter-label">Hospital</span>
                     </div>
                     <div class="select-wrapper">
                         <select id="hospital-select" class="filter-select" onchange="handleHospitalChange()">
                             <option value="">All Hospitals</option>
                         </select>
-                        <div class="select-arrow">▼</div>
+                        <div class="select-arrow"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                 </div>
 
                 <div class="filter-section">
                     <div class="filter-section-header">
-                        <span class="filter-icon">🩸</span>
+                        <span class="filter-icon"><i class="fa-solid fa-droplet"></i></span>
                         <span class="filter-label">Blood Type</span>
                     </div>
                     <div class="select-wrapper">
                         <select id="bloodtype-select" class="filter-select" onchange="handleBloodTypeChange()">
                             <option value="">All Blood Types</option>
                         </select>
-                        <div class="select-arrow">▼</div>
+                        <div class="select-arrow"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                 </div>
 
                 <div class="filter-section">
                     <div class="filter-section-header">
-                        <span class="filter-icon">📅</span>
+                        <span class="filter-icon"><i class="fa-solid fa-truck-medical"></i></span>
+                        <span class="filter-label">Admission Type</span>
+                    </div>
+                    <div class="select-wrapper">
+                        <select id="admission-select" class="filter-select" onchange="handleAdmissionTypeChange()">
+                            <option value="">All Admission Types</option>
+                        </select>
+                        <div class="select-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-section-header">
+                        <span class="filter-icon"><i class="fa-solid fa-calendar-days"></i></span>
                         <span class="filter-label">Admission Year</span>
                     </div>
                     <div class="select-wrapper">
                         <select id="year-select" class="filter-select" onchange="handleYearChange()">
                             <option value="">All Years</option>
                         </select>
-                        <div class="select-arrow">▼</div>
+                        <div class="select-arrow"><i class="fa-solid fa-chevron-down"></i></div>
                     </div>
                 </div>
 
                 <div class="sidebar-footer">
                     <button class="btn-reset" onclick="clearAllFilters()">
-                        <span>↻ Reset All Filters</span>
+                        <span><i class="fa-solid fa-rotate-right"></i> Reset All Filters</span>
                     </button>
                 </div>
             </div>
@@ -223,118 +240,120 @@
             <div id="filter-badges" class="badges-container"></div>
         </div>
 
-        <!-- Main Content -->
         <main class="main" id="main-content">
-            <!-- Stats Grid -->
-            <div class="stats-grid">
-                <div class="stat-card primary">
-                    <div>
-                        <p class="stat-label">Total Patients</p>
-                        <p class="stat-value" id="stat-patients">0</p>
-                        <p class="stat-subtitle" id="stat-patients-subtitle">In current view</p>
-                    </div>
-                    <div class="stat-icon primary">👥</div>
-                </div>
-                <div class="stat-card">
-                <div>
-                        <p class="stat-label">Unique Patients</p>
-                        <p class="stat-value" id="stat-unique-patients">0</p>
-                        <p class="stat-subtitle">Distinct individuals</p>
-                    </div>
-                    <div class="stat-icon default">🆔</div>
-                </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card primary">
+            <div>
+                <p class="stat-label">Total Patients</p>
+                <p class="stat-value" id="stat-patients">0</p>
+                <p class="stat-subtitle" id="stat-patients-subtitle">In current view</p>
+            </div>
+            <div class="stat-icon primary"><i class="fa-solid fa-users"></i></div>
+        </div>
+        <div class="stat-card">
+            <div>
+                <p class="stat-label">Unique Patients</p>
+                <p class="stat-value" id="stat-unique-patients">0</p>
+                <p class="stat-subtitle">Distinct individuals</p>
+            </div>
+            <div class="stat-icon default"><i class="fa-solid fa-fingerprint"></i></div>
+        </div>
+        <div class="stat-card">
+            <div>
+                <p class="stat-label">Doctors</p>
+                <p class="stat-value" id="stat-doctors">0</p>
+                <p class="stat-subtitle">Active physicians</p>
+            </div>
+            <div class="stat-icon default"><i class="fa-solid fa-user-doctor"></i></div>
+        </div>
+        <div class="stat-card">
+            <div>
+                <p class="stat-label">Patient Coverage</p>
+                <p class="stat-value" id="stat-coverage">0%</p>
+                <p class="stat-subtitle" id="stat-coverage-subtitle">of total dataset</p>
+            </div>
+            <div class="stat-icon default"><i class="fa-solid fa-chart-pie"></i></div>
+        </div>
+        <div class="stat-card">
+            <div>
+                <p class="stat-label">Avg. Billing</p>
+                <p class="stat-value" id="stat-billing">$0</p>
+                <p class="stat-subtitle">Per admission</p>
+            </div>
+            <div class="stat-icon default"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        </div>
+        <div class="stat-card">
+            <div>
+                <p class="stat-label">Avg. Stay</p>
+                <p class="stat-value" id="stat-stay">0 days</p>
+                <p class="stat-subtitle">Length of hospitalization</p>
+            </div>
+            <div class="stat-icon default"><i class="fa-solid fa-bed-pulse"></i></div>
+        </div>
+        <div class="stat-card">
+            <div>
+                <p class="stat-label">Abnormal Rate</p>
+                <p class="stat-value" id="stat-abnormal">0%</p>
+                <p class="stat-subtitle" id="stat-conditions">0 conditions tracked</p>
+            </div>
+            <div class="stat-icon" id="abnormal-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+        </div>
+    </div>
 
-                <div class="stat-card">
-                    <div>
-                        <p class="stat-label">Doctors</p>
-                        <p class="stat-value" id="stat-doctors">0</p>
-                        <p class="stat-subtitle">Active physicians</p>
-                    </div>
-                    <div class="stat-icon default">👨‍⚕️</div>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <p class="stat-label">Patient Coverage</p>
-                        <p class="stat-value" id="stat-coverage">0%</p>
-                        <p class="stat-subtitle" id="stat-coverage-subtitle">of total dataset</p>
-                    </div>
-                    <div class="stat-icon default">📊</div>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <p class="stat-label">Avg. Billing</p>
-                        <p class="stat-value" id="stat-billing">$0</p>
-                        <p class="stat-subtitle">Per admission</p>
-                    </div>
-                    <div class="stat-icon default">💵</div>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <p class="stat-label">Avg. Stay</p>
-                        <p class="stat-value" id="stat-stay">0 days</p>
-                        <p class="stat-subtitle">Length of hospitalization</p>
-                    </div>
-                    <div class="stat-icon default">⏱️</div>
-                </div>
-                <div class="stat-card">
-                    <div>
-                        <p class="stat-label">Abnormal Rate</p>
-                        <p class="stat-value" id="stat-abnormal">0%</p>
-                        <p class="stat-subtitle" id="stat-conditions">0 conditions tracked</p>
-                    </div>
-                    <div class="stat-icon" id="abnormal-icon">🩺</div>
+     <div id="help-modal" class="modal" onclick="closeHelpModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeHelpModal()">×</button>
+            <h2 class="modal-title">
+                <i class="fa-solid fa-book-open" style="margin-right: 8px; color: var(--primary);"></i> Dashboard Guide
+            </h2>
+            
+            <div class="guide-section">
+                <h3><i class="fa-solid fa-chart-simple" style="color: var(--text-secondary); margin-right: 8px;"></i> Dashboard Overview</h3>
+                <p>
+                    The statistics cards at the top provide an instant snapshot of key healthcare metrics. 
+                    You can customize the visual accessibility by clicking the 
+                    <span style="white-space: nowrap; font-weight: 600; color: var(--text-primary);"><i class="fa-solid fa-eye"></i> Vision Profile</span> 
+                    button.
+                </p>
+            </div>
+
+            <div class="guide-section">
+                <h3><i class="fa-solid fa-filter" style="color: var(--text-secondary); margin-right: 8px;"></i> Filter & Explore</h3>
+                <p>Use the sidebar to drill down into the data. You can combine multiple filters to isolate specific patient cohorts:</p>
+                <div class="filter-help" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
+                    <div><strong><i class="fa-solid fa-flask-vial"></i> Outcome:</strong> Test Results</div>
+                    <div><strong><i class="fa-solid fa-clipboard-check"></i> Diagnosis:</strong> Medical Condition</div>
+                    <div><strong><i class="fa-solid fa-pills"></i> Clinical:</strong> Medication Prescribed</div>
+                    <div><strong><i class="fa-solid fa-droplet"></i> Patient:</strong> Blood Type, Age, Gender</div>
+                    <div><strong><i class="fa-solid fa-truck-medical"></i> Admission:</strong> Type (Emergency, etc.)</div>
+                    <div><strong><i class="fa-solid fa-calendar-days"></i> Timeline:</strong> Admission Year</div>
                 </div>
             </div>
 
-            <!-- Help Modal -->
-            <div id="help-modal" class="modal" onclick="closeHelpModal(event)">
-                <div class="modal-content" onclick="event.stopPropagation()">
-                    <button class="modal-close" onclick="closeHelpModal()">×</button>
-                    <h2 class="modal-title">Dashboard Guide</h2>
-                    
-                    <div class="guide-section">
-                        <h3>Overview First</h3>
-                        <p>
-                            The statistics cards at the top display key metrics about your healthcare data.
-                            You can also set your <strong>color vision profile</strong> (👁️ button) to optimize chart colors for better accessibility.
-                            Begin here to understand the overall dataset composition and patterns.
-                        </p>
-                    </div>
-
-
-                    <div class="guide-section">
-                        <h3>Filter & Explore</h3>
-                        <p>Use the filter controls to narrow down your data by test results, age groups, or medical conditions. Each filter update instantly reflects across all visualizations.</p>
-                        <div class="filter-help">
-                            <div><strong>Test Outcome:</strong> Normal, Abnormal, or Inconclusive</div>
-                            <div><strong>Age Groups:</strong> 0-18, 19-40, 41-65, 65+</div>
-                            <div><strong>Medical Conditions:</strong> Cancer, Obesity, Diabetes, and more</div>
-                            <div><strong>Hospital Location:</strong> Click map markers for location-specific data</div>
-                        </div>
-                    </div>
-
-                    <div class="guide-section">
-                        <h3>Interactive Visualizations</h3>
-                        <p>Click on any chart element to drill down into details. Hover over data points to see additional information. All charts are linked—filtering in one updates all others.</p>
-                    </div>
-
-                    <div class="guide-section">
-                        <h3>Hospital Map</h3>
-                        <p>The spatial view displays hospital locations with color-coded markers representing dominant test result types. Click any marker to filter all data by that facility.</p>
-                    </div>
-
-                    <div class="guide-section">
-                        <h3>Reset Filters</h3>
-                        <p>Use the Reset button at any time to clear all active filters and view the complete dataset again.</p>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn-modal" onclick="closeHelpModal()">Close</button>
-                    </div>
-                </div>
+            <div class="guide-section">
+                <h3><i class="fa-solid fa-chart-pie" style="color: var(--text-secondary); margin-right: 8px;"></i> Interactive Visualizations</h3>
+                <p>Charts are interactive. <strong>Hover</strong> over data points for details, or <strong>Click</strong> elements to focus. The "Advanced Analysis" section contains complex flows like the Parallel Coordinates chart.</p>
             </div>
 
-            <!-- Charts Grid (First Row of Smaller Charts) -->
+            <div class="guide-section">
+                <h3><i class="fa-solid fa-map-location-dot" style="color: var(--text-secondary); margin-right: 8px;"></i> Hospital Map</h3>
+                <p>View geographic distribution of hospitals. Markers are colored by the dominant test result. Click a marker to filter the dashboard by that specific hospital.</p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-modal" onclick="closeHelpModal()">Close Guide</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="dashboard-section expanded">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title">Patient Demographics & Outcomes</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content">
             <div class="charts-grid">
                 <div class="chart-card">
                     <h3 class="chart-title">Test Results Distribution</h3>
@@ -343,81 +362,142 @@
                 </div>
 
                 <div class="chart-card">
+                    <h3 class="chart-title">Patient Demographics (Age Pyramid)</h3>
+                    <div class="chart-container" id="pyramid-chart"></div>
+                </div>
+
+                <div class="chart-card">
+                    <h3 class="chart-title">Blood Type Distribution</h3>
+                    <div class="chart-container" id="blood-type-chart"></div>
+                </div>
+            </div>
+            
+            <div class="chart-card full-width-chart" style="margin-top: 20px;">
+                <h3 class="chart-title">Patient Segmentation (Gender → Blood → Condition)</h3>
+                <div id="treemap-chart"></div>
+                <div id="treemap-legend"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section expanded">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title">Clinical Analysis & Treatments</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="charts-grid">
+                <div class="chart-card">
                     <h3 class="chart-title">Medical Conditions vs Test Results</h3>
                     <div class="chart-container" id="conditions-chart"></div>
                 </div>
 
+                <div class="chart-card">
+                    <h3 class="chart-title">Seasonality of Conditions</h3>
+                    <div class="chart-container" id="seasonality-chart"></div>
+                </div>
+            </div>
+
+            <div class="chart-card full-width-chart">
+                <h3 class="chart-title">Disease Trends Over Time</h3>
+                <div id="disease-trends-chart" style="width: 100%; height: 350px;"></div>
+            </div>
+
+            <div class="chart-card full-width-chart">
+                <h3 class="chart-title">Disease to Medication Relationships</h3>
+                <div class="chart-container" id="arc-diagram-chart" style="height: 600px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section expanded">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title">Hospital Operations</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Length of Stay Analysis</h3>
+                    <div class="chart-container" id="stay-admission-chart"></div>
+                    <div class="legend" id="stay-admission-legend"></div>
+                </div>
+                
+                 <div class="chart-card">
+                     <h3 class="chart-title">Length of Stay Distribution</h3>
+                     <div class="chart-container" id="los-boxplot"></div>
+                </div>
+            </div>
+
+            <div class="chart-card full-width-chart">
+                <h3 class="chart-title">Admission Trends Over Time</h3>
+                <div class="chart-container" id="admission-trends-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section expanded">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title">Financial & Insurance Metrics</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="charts-grid">
                 <div class="chart-card">
                     <h3 class="chart-title">Billing Amount Distribution</h3>
                     <div class="chart-container" id="billing-chart"></div>
                 </div>
 
                 <div class="chart-card">
-                    <h3 class="chart-title">Patient Demographics (Age Pyramid)</h3>
-                    <div class="chart-container" id="pyramid-chart"></div>
-                </div>
-                <div class="chart-card">
-                    <h3 class="chart-title">Blood Type Distribution</h3>
-                    <div class="chart-container" id="blood-type-chart"></div>
-                </div>
-
-                <div class="chart-card">
-                    <h3 class="chart-title">Length of Stay vs Admission Type & Age Interval</h3>
-                    <div class="chart-container" id="stay-admission-chart"></div>
-                    <div class="legend" id="stay-admission-legend"></div>
+                    <h3 class="chart-title">Billing Trends by Year</h3>
+                    <div id="billing-year-chart"></div>
+                    <div id="billing-year-legend" class="legend"></div>
                 </div>
             </div>
 
-            <!-- Full-Width Admission Trends Chart-->
-            <div class="chart-card full-width-chart">
-                <h3 class="chart-title">Admission Trends Over Time</h3>
-                <div class="chart-container" id="admission-trends-chart"></div>
-            </div>
-
-
-            <div class="chart-card">
-            <h3 class="chart-title">Hospital Locations</h3>
-            <div id="map" style="height: 420px;"></div>
-            </div>
-
-            <!-- Arc Diagram: Diseases to Medications -->
-            <div class="chart-card full-width-chart">
-                <h3 class="chart-title">Disease to Medication Relationships</h3>
-                <div class="chart-container" id="arc-diagram-chart" style="height: 600px;"></div>
-            </div>
-
-            <!-- Horizontal Bar Chart: Average Cost per Insurance Provider -->
             <div class="chart-card full-width-chart">
                 <h3 class="chart-title">Average Billing Cost by Insurance Provider</h3>
                 <div class="chart-container" id="insurance-cost-chart" style="height: 400px;"></div>
             </div>
-            <div class="chart-card full-width-chart">
-                <h3>Disease Trends Over Time</h3>
-                <div id="disease-trends-chart" style="width: 100%; height: 350px;"></div>
-            </div>
 
-            <!-- Combined Bar + Line Chart: Insurance Provider Performance -->
             <div class="chart-card full-width-chart">
                 <h3 class="chart-title">Insurance Provider Performance</h3>
                 <div class="chart-container" id="insurance-performance-chart" style="height: 500px;"></div>
             </div>
+        </div>
+    </div>
 
-            
-            <div id="treemap-chart"></div>
-            <div id="treemap-legend"></div>
-
-            <div id="hospital-filter-indicator" class="filter-indicator hidden">
-                <span class="dot"></span>
-                <span id="hospital-filter-text"></span>
-                <button onclick="clearFilter('hospital')">✕</button>
+    <div class="dashboard-section expanded">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title">Other Analysis</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="chart-card full-width-chart">
+                <h3 class="chart-title">Patient Flow: Age → Admission → Condition → Outcome</h3>
+                <div class="chart-container" id="parallel-coordinates-chart"></div>
             </div>
+        </div>
+    </div>
 
+    <div class="dashboard-section expanded">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title">Hospital Locations Map</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="chart-card full-width-chart">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+                <div id="hospital-filter-indicator" class="filter-indicator hidden">
+                    <span class="dot"></span>
+                    <span id="hospital-filter-text"></span>
+                    <button onclick="clearFilter('hospital')">✕</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <div id="billing-year-chart"></div>
-            <div id="billing-year-legend" class="legend"></div>
-
-
-        </main>
+</main>
 
         <footer class="footer">
             <p>Made by Maroua + Imen + Rayane</p>
@@ -510,6 +590,15 @@
 
 
     </script>
+    <script>
+        window.toggleSection = function(headerElement) {
+            const section = headerElement.parentElement;
+            section.classList.toggle('expanded');
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
+        };
+</script>
 
 </body>
 </html>

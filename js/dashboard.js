@@ -2,7 +2,7 @@ function applyFilters() {
     filteredData = allData.filter(r => {
         if (filters.testResult && r.testResults !== filters.testResult) return false;
         if (filters.medicalCondition && r.medicalCondition !== filters.medicalCondition) return false;
-        // 1. Existing Logic for Medication
+        if (filters.admissionType && r.admissionType !== filters.admissionType) return false;
         if (filters.medication && r.medication !== filters.medication) return false; 
         if (filters.ageGroup && r.ageGroup !== filters.ageGroup) return false;
         if (filters.hospital && r.hospital !== filters.hospital) return false;
@@ -29,6 +29,7 @@ function clearAllFilters() {
         testResult: null, 
         medicalCondition: null, 
         medication: null,
+        admissionType: null,
         ageGroup: null, 
         hospital: null,
         gender: null,
@@ -112,6 +113,18 @@ function populateDropdowns() {
             yearSelect.appendChild(option);
         });
     }
+
+    const admissionSelect = document.getElementById('admission-select');
+    if (admissionSelect) {
+        const admissionTypes = [...new Set(allData.map(d => d.admissionType))].filter(a => a).sort();
+        admissionSelect.innerHTML = '<option value="">All Admission Types</option>';
+        admissionTypes.forEach(a => {
+            const option = document.createElement('option');
+            option.value = a;
+            option.textContent = a;
+            admissionSelect.appendChild(option);
+        });
+    }
 }
 
 // ---------------------------------------------------------
@@ -147,6 +160,11 @@ function handleYearChange() {
     filters.admissionYear = select.value || null;
     applyFilters();
 }
+function handleAdmissionTypeChange() {
+    const select = document.getElementById('admission-select');
+    filters.admissionType = select.value || null;
+    applyFilters();
+}
 
 // ---------------------------------------------------------
 // UI Update Logic
@@ -156,11 +174,16 @@ function updateFilterUI() {
     // Update test result buttons
     document.querySelectorAll('.filter-chip').forEach(btn => {
         const btnText = btn.textContent.trim();
+        const filterType = btn.dataset.filterType || 'testResult'; // Assuming you might distinguish groups
+        
         btn.classList.remove('active');
+        
+        // Check if this button matches selected Test Result OR selected Age Group
         if (filters.testResult === btnText || filters.ageGroup === btnText) {
             btn.classList.add('active');
         }
     });
+
 
     // Update condition select
     const conditionSelect = document.getElementById('condition-select');
@@ -179,6 +202,9 @@ function updateFilterUI() {
     if (hospitalSelect) {
         hospitalSelect.value = filters.hospital || '';
     }
+
+    const admissionSelect = document.getElementById('admission-select');
+    if (admissionSelect) admissionSelect.value = filters.admissionType || '';
     
     // Update blood type select
     const bloodTypeSelect = document.getElementById('bloodtype-select');
@@ -292,6 +318,15 @@ function updateFilterUI() {
                 </span>
             `;
         }
+        if (filters.admissionType) {
+             badgesContainer.innerHTML += `
+                <span class="filter-badge filter-badge-admission">
+                    <span class="badge-icon">🚑</span>
+                    <span class="badge-label">${filters.admissionType}</span>
+                    <button class="badge-remove" onclick="setFilter('admissionType', '${filters.admissionType}')">×</button>
+                </span>
+            `;
+        }
     }
 
     // Highlight sections (for collapsed rail) when any filter inside that section is active
@@ -300,6 +335,7 @@ function updateFilterUI() {
         ageGroup: 'Age Bracket',
         gender: 'Gender',
         medicalCondition: 'Diagnosis',
+        admissionType: 'Admission Type',
         medication: 'Medication',
         hospital: 'Hospital',
         bloodType: 'Blood Type',

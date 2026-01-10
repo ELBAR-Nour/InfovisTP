@@ -8,11 +8,11 @@ let filters = {
     ageGroup: null, 
     hospital: null,
     gender: null,
+    admissionType: null,
     bloodType: null,
     admissionYear: null
 };
 
-// Dynamic COLORS based on vision type
 let COLORS = { Normal: '#22c55e', Abnormal: '#ef4444', Inconclusive: '#f59e0b' };
 const AGE_GROUPS = ['0-18', '19-40', '41-65', '65+'];
 
@@ -159,6 +159,7 @@ async function loadData() {
         populateBloodTypeSelect();
         populateYearSelect();
         populateMedicationSelect();
+        populateAdmissionTypeSelect();
         updateDashboard();
 
         window.addEventListener('resize', updateDashboard);
@@ -231,8 +232,6 @@ function updateStats() {
 
 
 
-
-
 function updateDashboard() {
     updateStats();
 
@@ -254,6 +253,30 @@ function populateConditionSelect() {
             option.textContent = condition;
             select.appendChild(option);
         });
+        select.value = currentValue;
+    }
+}
+function populateAdmissionTypeSelect() {
+    // Get unique admission types and sort them
+    const types = [...new Set(allData.map(d => d.admissionType))]
+        .filter(t => t && t !== 'Unknown')
+        .sort();
+        
+    const select = document.getElementById('admission-select');
+    if (select) {
+        const currentValue = select.value;
+        // Reset options
+        select.innerHTML = '<option value="">All Admission Types</option>';
+        
+        // Add new options
+        types.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            select.appendChild(option);
+        });
+        
+        // Restore selected value if it exists
         select.value = currentValue;
     }
 }
