@@ -69,11 +69,64 @@ async function loadData() {
     try {
         let parsed = [];
         try {
-            const csvData = await d3.csv('data/healthcare_dataset.csv');            console.log(`✓ CSV loaded: ${csvData.length} records`);
-            parsed = csvData.slice(0, 5000).map(parseRecord).filter(r => r !== null);
-            console.log(`✓ Parsed: ${parsed.length} valid records`);
-        } catch (e) { 
-            console.warn('CSV not found, using generated sample data:', e);
+            // Use PapaParse worker-based parsing when available to avoid blocking
+            // the main thread for large CSV files. Falls back to `d3.csv`.
+            if (typeof Papa !== 'undefined' && Papa.parse) {
+                allData = [];
+                let processed = 0;
+                const MAX_RECORDS = null; // set to a number for dev limiting
+
+                await new Promise((resolve, reject) => {
+                    Papa.parse('data/healthcare_dataset.csv', {
+                        download: true,
+                        header: true,
+                        worker: true,
+                        chunk: function(results) {
+                            const rows = results.data;
+                            // Apply optional limit if requested
+                            let useful = rows;
+                            if (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0) {
+                                const remaining = Math.max(0, MAX_RECORDS - allData.length);
+                                useful = rows.slice(0, remaining);
+                            }
+                            const parsedChunk = useful.map(parseRecord).filter(r => r !== null);
+                            allData.push(...parsedChunk);
+                            processed += rows.length;
+                            const loadingEl = document.getElementById('loading');
+                            if (loadingEl) {
+                                const p = loadingEl.querySelector('p');
+                                if (p) p.textContent = `Parsing ${allData.length} rows...`;
+                            }
+                            // If we've reached a MAX_RECORDS cap, abort parsing early
+                            if (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0 && allData.length >= MAX_RECORDS) {
+                                this.abort();
+                            }
+                        },
+                        error: function(err) { console.error('PapaParse error', err); reject(err); },
+                        complete: function() {
+                            parsed = allData.slice();
+                            console.log(`✓ Parsed (PapaParse): ${parsed.length} valid records`);
+                            resolve();
+                        }
+                    });
+                });
+            } else {
+                const csvData = await d3.csv('data/healthcare_dataset.csv');
+                console.log(`✓ CSV loaded: ${csvData.length} records`);
+
+                // By default load the full CSV. If you need to limit records for
+                // performance during development, set `MAX_RECORDS` to a positive
+                // integer. Leave `null` to use all rows.
+                const MAX_RECORDS = null; // e.g. 5000 to limit
+                const rows = (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0)
+                    ? csvData.slice(0, MAX_RECORDS)
+                    : csvData;
+
+                parsed = rows.map(parseRecord).filter(r => r !== null);
+                console.log(`✓ Parsed: ${parsed.length} valid records (limit: ${MAX_RECORDS || 'none'})`);
+            }
+        } catch (e) {
+            console.warn('CSV not found or parse failed, using generated sample data:', e);
         }
 
         if (parsed.length === 0) {
@@ -81,6 +134,7 @@ async function loadData() {
         }
 
         allData = parsed;
+        
         filteredData = parsed;
 
         console.log(`✓ Data ready: ${allData.length} records`);

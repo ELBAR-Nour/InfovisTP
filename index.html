@@ -351,11 +351,42 @@
                 <div class="chart-container" id="admission-trends-chart"></div>
             </div>
 
+            <!-- Arc Diagram: Diseases to Medications -->
+            <div class="chart-card full-width-chart">
+                <h3 class="chart-title">Disease to Medication Relationships</h3>
+                <div class="chart-container" id="arc-diagram-chart" style="height: 600px;"></div>
+            </div>
+
+            <!-- Horizontal Bar Chart: Average Cost per Insurance Provider -->
+            <div class="chart-card full-width-chart">
+                <h3 class="chart-title">Average Billing Cost by Insurance Provider</h3>
+                <div class="chart-container" id="insurance-cost-chart" style="height: 400px;"></div>
+            </div>
+
+            <!-- Combined Bar + Line Chart: Insurance Provider Performance -->
+            <div class="chart-card full-width-chart">
+                <h3 class="chart-title">Insurance Provider Performance</h3>
+                <div class="chart-container" id="insurance-performance-chart" style="height: 500px;"></div>
+            </div>
 
             <div class="chart-card">
             <h3 class="chart-title">Hospital Locations</h3>
             <div id="map" style="height: 420px;"></div>
             </div>
+            <div id="treemap-chart"></div>
+            <div id="treemap-legend"></div>
+
+            <div id="hospital-filter-indicator" class="filter-indicator hidden">
+                <span class="dot"></span>
+                <span id="hospital-filter-text"></span>
+                <button onclick="clearFilter('hospital')">✕</button>
+            </div>
+
+
+            <div id="billing-year-chart"></div>
+            <div id="billing-year-legend" class="legend"></div>
+
+
 
 
         </main>
@@ -397,6 +428,7 @@
 
     <!-- Scripts -->
     <script src="js/colorblind.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="js/data.js"></script>
     <script src="js/tooltip.js"></script>
     <script src="js/dashboard.js"></script>
@@ -425,13 +457,16 @@
                     openVisionSettings();
                 });
             }
-            
+
+            // Restore sidebar collapsed state and keep body class in sync so header/main shift
+            const sidebar = document.getElementById('sidebar');
             const sidebarState = localStorage.getItem('sidebarCollapsed');
-            if (sidebarState === 'true') {
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar) {
-                    sidebar.classList.add('collapsed');
-                }
+            const isCollapsed = sidebarState === 'true' || sidebarState === '1';
+            if (isCollapsed && sidebar) {
+                sidebar.classList.add('collapsed');
+                document.body.classList.add('sidebar-collapsed');
+                const icon = document.querySelector('.toggle-icon');
+                if (icon) icon.textContent = '▶';
             }
         });
 
@@ -439,15 +474,18 @@
             const sidebar = document.getElementById('sidebar');
             const icon = document.querySelector('.toggle-icon');
 
-            sidebar.classList.toggle('collapsed');
+            // Toggle collapsed class on sidebar and keep body in sync so header/main shift
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+            if (isCollapsed) document.body.classList.add('sidebar-collapsed');
+            else document.body.classList.remove('sidebar-collapsed');
 
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            // Persist a truthy value when collapsed, remove when expanded
+            if (isCollapsed) localStorage.setItem('sidebarCollapsed', 'true');
+            else localStorage.setItem('sidebarCollapsed', 'false');
 
-            if (icon) {
-                icon.textContent = isCollapsed ? '▶' : '◀';
-            }
+            if (icon) icon.textContent = isCollapsed ? '▶' : '◀';
         }
+        
 
 
     </script>

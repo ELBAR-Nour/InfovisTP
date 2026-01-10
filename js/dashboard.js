@@ -184,5 +184,83 @@ function updateFilterUI() {
             `;
         }
     }
+
+    // Highlight sections (for collapsed rail) when any filter inside that section is active
+    const sectionMap = {
+        testResult: 'Test Outcome',
+        ageGroup: 'Age Bracket',
+        gender: 'Gender',
+        medicalCondition: 'Diagnosis',
+        hospital: 'Hospital',
+        bloodType: 'Blood Type',
+        admissionYear: 'Admission Year'
+    };
+
+    // Clear previous section-active classes
+    document.querySelectorAll('.filter-section').forEach(sec => sec.classList.remove('section-active'));
+
+    Object.keys(sectionMap).forEach(key => {
+        if (filters[key]) {
+            const label = sectionMap[key];
+            const sec = Array.from(document.querySelectorAll('.filter-section')).find(s => {
+                const lbl = s.querySelector('.filter-label');
+                return lbl && lbl.textContent.trim() === label;
+            });
+            if (sec) sec.classList.add('section-active');
+        }
+    });
 }
+
+// Sidebar toggle: keeps header/main in sync regardless of DOM order
+function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    if (!sb) return;
+    const collapsed = sb.classList.toggle('collapsed');
+    if (collapsed) {
+        document.body.classList.add('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', '1');
+    } else {
+        document.body.classList.remove('sidebar-collapsed');
+        localStorage.removeItem('sidebarCollapsed');
+    }
+
+    // Add hover titles/tooltips to section headers when collapsed so users see meaning
+    document.querySelectorAll('.filter-section').forEach(sec => {
+        const header = sec.querySelector('.filter-section-header');
+        const label = sec.querySelector('.filter-label');
+        if (header && label) {
+            if (collapsed) header.setAttribute('title', label.textContent.trim());
+            else header.removeAttribute('title');
+        }
+    });
+
+    // Update toggle button aria state if present
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+}
+
+// Initialize sidebar state from saved preference
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        if (localStorage.getItem('sidebarCollapsed')) {
+            const sb = document.getElementById('sidebar');
+            if (sb) {
+                sb.classList.add('collapsed');
+                document.body.classList.add('sidebar-collapsed');
+            }
+        }
+        // Ensure UI reflects any saved filter state and collapsed state on load
+        if (typeof updateFilterUI === 'function') updateFilterUI();
+        // If starting collapsed, add titles for each section header so icons are discoverable
+        if (document.body.classList.contains('sidebar-collapsed')) {
+            document.querySelectorAll('.filter-section').forEach(sec => {
+                const header = sec.querySelector('.filter-section-header');
+                const label = sec.querySelector('.filter-label');
+                if (header && label) header.setAttribute('title', label.textContent.trim());
+            });
+        }
+    } catch (e) {
+        // ignore storage errors
+    }
+});
 
