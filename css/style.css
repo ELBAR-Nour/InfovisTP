@@ -1007,6 +1007,16 @@ body.sidebar-collapsed .main {
             border-radius: 8px;
             overflow: hidden;
         }
+        #map {
+            height: 500px;
+            width: 100%;
+            min-height: 500px; /* Force height so ArcGIS can calculate coordinates */
+            background: #f8fafc; /* Placeholder color */
+        }
+        .esri-view {
+    height: 100% !important;
+    width: 100% !important;
+}
 
         /* ===== Shneiderman's InfoViz Principles ===== */
         /* 1. Overview First - Summary Statistics */
@@ -1768,7 +1778,7 @@ body.sidebar-collapsed .btn-reset .reset-icon { display: inline-flex !important;
 /* The Content Area */
 .section-content {
     padding: 20px;
-    display: none; /* Hidden by default if not expanded */
+    display: none; 
     animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -1782,7 +1792,6 @@ body.sidebar-collapsed .btn-reset .reset-icon { display: inline-flex !important;
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Fix for Grid inside sections */
 .section-content .charts-grid {
     margin-bottom: 0; 
 }

@@ -13,131 +13,179 @@ require([
     container: "map",
     map,
     center: [-98, 38],
-    zoom: 4
+    zoom: 4,
+    popup: {
+      dockEnabled: false, 
+      defaultPopupTemplateEnabled: false,
+      collapseEnabled: false
+    }
   });
+
+  view.popup.autoOpenEnabled = false;
 
   const hospitalsLayer = new GraphicsLayer();
   map.add(hospitalsLayer);
 
-  // Function to update map legend based on current COLORS
+  // ============================================================
+  // LEGEND LOGIC (Moved up so it can be called immediately)
+  // ============================================================
   window.updateMapLegend = function() {
     const legendDiv = document.getElementById('map-legend');
     if (legendDiv) {
       legendDiv.innerHTML = `
-        <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-family: Arial, sans-serif; font-size: 13px;">
-          <h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #1f2937;">Hospital Test Results</h4>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="background: white; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-family: 'Inter', sans-serif; font-size: 13px;">
+          <h4 style="margin: 0 0 10px 0; font-size: 14px; font-weight: bold; color: #1f2937;">Hospital Outcomes</h4>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Normal}; border: 2px solid white;"></div>
-              <span>Normal Results</span>
+              <div style="width: 10px; height: 10px; border-radius: 50%; background: ${COLORS.Normal}; border: 2px solid white; box-shadow: 0 0 2px rgba(0,0,0,0.3);"></div>
+              <span>Normal</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Abnormal}; border: 2px solid white;"></div>
-              <span>Abnormal Results</span>
+              <div style="width: 10px; height: 10px; border-radius: 50%; background: ${COLORS.Abnormal}; border: 2px solid white; box-shadow: 0 0 2px rgba(0,0,0,0.3);"></div>
+              <span>Abnormal</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Inconclusive}; border: 2px solid white;"></div>
-              <span>Inconclusive Results</span>
+              <div style="width: 10px; height: 10px; border-radius: 50%; background: ${COLORS.Inconclusive}; border: 2px solid white; box-shadow: 0 0 2px rgba(0,0,0,0.3);"></div>
+              <span>Inconclusive</span>
             </div>
-          </div>
-          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
-            <strong>💡 Tip:</strong> Click hospitals to filter data
           </div>
         </div>
       `;
     }
   };
 
-  // Map Legend (Shneiderman: Overview First)
+  // Create the container and add it to the UI
   const legendDiv = document.createElement('div');
   legendDiv.id = 'map-legend';
-  legendDiv.innerHTML = `
-    <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-family: Arial, sans-serif; font-size: 13px;">
-      <h4 style="margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #1f2937;">Hospital Test Results</h4>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Normal}; border: 2px solid white;"></div>
-          <span>Normal Results</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Abnormal}; border: 2px solid white;"></div>
-          <span>Abnormal Results</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div style="width: 12px; height: 12px; border-radius: 50%; background: ${COLORS.Inconclusive}; border: 2px solid white;"></div>
-          <span>Inconclusive Results</span>
-        </div>
-      </div>
-      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
-        <strong>💡 Tip:</strong> Click hospitals to filter data
-      </div>
-    </div>
-  `;
   view.ui.add(legendDiv, 'top-right');
 
-  // Handle graphic clicks
-  view.on("click", async (event) => {
-    const hitTestResults = await view.hitTest(event, { include: hospitalsLayer });
-    if (hitTestResults.results.length > 0) {
-      const graphic = hitTestResults.results[0].graphic;
-      if (graphic && graphic.attributes && graphic.attributes.hospitalName) {
-        setFilter("hospital", graphic.attributes.hospitalName);
+  // ➤ FIX: Call this immediately so it appears on load
+  window.updateMapLegend(); 
+
+  // ============================================================
+  // VIEW READY LOGIC
+  // ============================================================
+  view.when(() => {
+    console.log("MapView ready");
+    
+    setTimeout(() => {
+      if (window.filteredData && window.filteredData.length > 0) {
+        window.updateHospitalMap();
       }
+      window.dispatchEvent(new Event('resize'));
+    }, 200);
+  });
+
+  // ... (Keep your existing interaction logic: pointer-move, click, popup-watch) ...
+
+  let isPopupPinned = false;
+
+  view.popup.watch("selectedFeature", (graphic) => {
+    if (isPopupPinned && graphic && graphic.attributes) {
+       setFilter("hospital", graphic.attributes.hospitalName);
     }
   });
 
-  const GEOCODER_URL =
-    "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
+  view.popup.watch("visible", (visible) => {
+    if (!visible) {
+      isPopupPinned = false;
+      document.getElementById("map").style.cursor = "default";
+    }
+  });
 
-  // Cache geocoded hospitals (VERY IMPORTANT)
+  view.on("pointer-move", function(event) {
+    if (isPopupPinned) return; 
+
+    view.hitTest(event).then(function(response) {
+      const hitResults = response.results.filter(r => r.graphic.layer === hospitalsLayer);
+      
+      if (hitResults.length > 0) {
+        const graphics = hitResults.map(r => r.graphic);
+        document.getElementById("map").style.cursor = "pointer";
+        view.popup.open({
+          location: graphics[0].geometry,
+          features: graphics 
+        });
+      } else {
+        view.popup.close();
+        document.getElementById("map").style.cursor = "default";
+      }
+    });
+  });
+
+  view.on("click", async (event) => {
+    const response = await view.hitTest(event, { include: hospitalsLayer });
+    const graphics = response.results.map(r => r.graphic);
+
+    if (graphics.length > 0) {
+      isPopupPinned = true;
+      view.popup.open({
+        location: graphics[0].geometry,
+        features: graphics
+      });
+
+      if (view.popup.selectedFeature) {
+          setFilter("hospital", view.popup.selectedFeature.attributes.hospitalName);
+      } else {
+          setFilter("hospital", graphics[0].attributes.hospitalName);
+      }
+    } else {
+      isPopupPinned = false;
+      view.popup.close();
+    }
+  });
+
+  // ============================================================
+  // DATA DRAWING LOGIC
+  // ============================================================
+  const GEOCODER_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
   const hospitalLocationCache = new Map();
+  let renderCounter = 0;
 
-  // ---- Public hook (called from data.js) ----
   window.updateHospitalMap = async function () {
-    if (!filteredData || filteredData.length === 0) return;
-    await drawHospitals();
+    if (!view.ready || !filteredData || filteredData.length === 0) return;
+    
+    renderCounter++;
+    await drawHospitals(renderCounter);
+    
+    // Also update legend here in case COLORS change (e.g., colorblind mode)
+    if (typeof window.updateMapLegend === 'function') window.updateMapLegend();
   };
 
-  async function drawHospitals() {
+  async function drawHospitals(requestId) {
     hospitalsLayer.removeAll();
-
-    // Group data by hospital
-    const hospitals = d3.group(filteredData, d => d.hospital);
+    const hospitals = d3.group(filteredData, d => (d.hospital || 'Unknown').trim());
 
     for (const [hospitalName, records] of hospitals.entries()) {
       if (!hospitalName || hospitalName === "Unknown") continue;
+      if (requestId !== renderCounter) return;
 
       let location = hospitalLocationCache.get(hospitalName);
-
-      // ---- Geocode if not cached ----
       if (!location) {
         try {
           const result = await locator.addressToLocations(GEOCODER_URL, {
             address: { SingleLine: `${hospitalName}, USA` },
             maxLocations: 1
           });
-
           if (!result.length) continue;
-
           location = result[0].location;
           hospitalLocationCache.set(hospitalName, location);
-
         } catch (err) {
           console.warn("Geocoding failed:", hospitalName);
           continue;
         }
       }
 
-      // ---- Stats (REAL from CSV) ----
-      const totalPatients = records.length;
-      const avgBilling =
-        d3.mean(records, d => d.billingAmount) || 0;
+      if (requestId !== renderCounter) return;
 
-      const dominantResult = d3.rollups(
-        records,
-        v => v.length,
-        d => d.testResults
-      ).sort((a, b) => b[1] - a[1])[0][0];
+      const totalPatients = records.length;
+      const avgBilling = d3.mean(records, d => d.billingAmount) || 0;
+      const resultCounts = d3.rollups(records, v => v.length, d => d.testResults).sort((a, b) => b[1] - a[1]);
+      const dominantResult = resultCounts.length > 0 ? resultCounts[0][0] : "Unknown";
+      
+      const fmtBilling = new Intl.NumberFormat('en-US', { 
+          style: 'currency', currency: 'USD', maximumFractionDigits: 0 
+      }).format(avgBilling);
 
       const graphic = new Graphic({
         geometry: {
@@ -147,22 +195,24 @@ require([
         },
         symbol: {
           type: "simple-marker",
-          size: 12,
-          color: COLORS[dominantResult],
-          outline: { color: "#fff", width: 1 }
+          size: 14,
+          color: COLORS[dominantResult] || "#999",
+          outline: { color: "#fff", width: 1.5 }
         },
         attributes: {
           hospitalName,
           totalPatients,
-          avgBilling: Math.round(avgBilling),
+          fmtBilling,
           dominantResult
         },
         popupTemplate: {
           title: "{hospitalName}",
           content: `
-            <b>Patients:</b> {totalPatients}<br>
-            <b>Avg Billing:</b> ${"{avgBilling}"}<br>
-            <b>Dominant Test Result:</b> {dominantResult}
+            <div style="font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.6;">
+              <div><strong>Patients:</strong> {totalPatients}</div>
+              <div><strong>Avg Bill:</strong> {fmtBilling}</div>
+              <div><strong>Outcome:</strong> <span style="color:${COLORS[dominantResult]}; font-weight:bold;">{dominantResult}</span></div>
+            </div>
           `
         }
       });

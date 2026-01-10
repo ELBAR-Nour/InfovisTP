@@ -14,7 +14,6 @@ function applyFilters() {
         }
         return true;
     });
-    // Ensure these functions exist in your other files or are defined
     if (typeof updateDashboard === 'function') updateDashboard();
     updateFilterUI();
 }
@@ -329,7 +328,6 @@ function updateFilterUI() {
         }
     }
 
-    // Highlight sections (for collapsed rail) when any filter inside that section is active
     const sectionMap = {
         testResult: 'Test Outcome',
         ageGroup: 'Age Bracket',
@@ -342,7 +340,6 @@ function updateFilterUI() {
         admissionYear: 'Admission Year'
     };
 
-    // Clear previous section-active classes
     document.querySelectorAll('.filter-section').forEach(sec => sec.classList.remove('section-active'));
 
     Object.keys(sectionMap).forEach(key => {
@@ -357,7 +354,7 @@ function updateFilterUI() {
     });
 }
 
-// Sidebar toggle: keeps header/main in sync regardless of DOM order
+// Sidebar toggle
 function toggleSidebar() {
     const sb = document.getElementById('sidebar');
     if (!sb) return;
@@ -370,7 +367,6 @@ function toggleSidebar() {
         localStorage.removeItem('sidebarCollapsed');
     }
 
-    // Add hover titles/tooltips to section headers when collapsed so users see meaning
     document.querySelectorAll('.filter-section').forEach(sec => {
         const header = sec.querySelector('.filter-section-header');
         const label = sec.querySelector('.filter-label');
@@ -380,7 +376,7 @@ function toggleSidebar() {
         }
     });
 
-    // Update toggle button aria state if present
+    // Update toggle button 
     const toggleBtn = document.getElementById('sidebar-toggle');
     if (toggleBtn) toggleBtn.setAttribute('aria-expanded', String(!collapsed));
 }
@@ -397,7 +393,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // Ensure UI reflects any saved filter state and collapsed state on load
         if (typeof updateFilterUI === 'function') updateFilterUI();
-        // If starting collapsed, add titles for each section header so icons are discoverable
         if (document.body.classList.contains('sidebar-collapsed')) {
             document.querySelectorAll('.filter-section').forEach(sec => {
                 const header = sec.querySelector('.filter-section-header');
@@ -406,6 +401,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     } catch (e) {
-        // ignore storage errors
+        console.error('Error initializing sidebar state:', e);
     }
 });
