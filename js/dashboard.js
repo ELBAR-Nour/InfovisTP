@@ -2,6 +2,8 @@ function applyFilters() {
     filteredData = allData.filter(r => {
         if (filters.testResult && r.testResults !== filters.testResult) return false;
         if (filters.medicalCondition && r.medicalCondition !== filters.medicalCondition) return false;
+        // 1. Existing Logic for Medication
+        if (filters.medication && r.medication !== filters.medication) return false; 
         if (filters.ageGroup && r.ageGroup !== filters.ageGroup) return false;
         if (filters.hospital && r.hospital !== filters.hospital) return false;
         if (filters.gender && r.gender !== filters.gender) return false;
@@ -12,7 +14,8 @@ function applyFilters() {
         }
         return true;
     });
-    updateDashboard();
+    // Ensure these functions exist in your other files or are defined
+    if (typeof updateDashboard === 'function') updateDashboard();
     updateFilterUI();
 }
 
@@ -25,6 +28,7 @@ function clearAllFilters() {
     filters = { 
         testResult: null, 
         medicalCondition: null, 
+        medication: null,
         ageGroup: null, 
         hospital: null,
         gender: null,
@@ -34,9 +38,95 @@ function clearAllFilters() {
     applyFilters();
 }
 
+// ---------------------------------------------------------
+// 2. NEW: Function to Populate Dropdowns (Call this after data loads!)
+// ---------------------------------------------------------
+function populateDropdowns() {
+    // 1. Populate Medical Conditions
+    const conditionSelect = document.getElementById('condition-select');
+    if (conditionSelect) {
+        const conditions = [...new Set(allData.map(d => d.medicalCondition))].filter(c => c).sort();
+        conditionSelect.innerHTML = '<option value="">All Medical Conditions</option>';
+        conditions.forEach(c => {
+            const option = document.createElement('option');
+            option.value = c;
+            option.textContent = c;
+            conditionSelect.appendChild(option);
+        });
+    }
+
+    // 2. Populate Hospitals
+    const hospitalSelect = document.getElementById('hospital-select');
+    if (hospitalSelect) {
+        const hospitals = [...new Set(allData.map(d => d.hospital))].filter(h => h).sort();
+        hospitalSelect.innerHTML = '<option value="">All Hospitals</option>';
+        hospitals.forEach(h => {
+            const option = document.createElement('option');
+            option.value = h;
+            option.textContent = h;
+            hospitalSelect.appendChild(option);
+        });
+    }
+
+    // 3. Populate Medications (THIS WAS MISSING)
+    const medSelect = document.getElementById('medication-select');
+    if (medSelect) {
+        // Extract unique medications, remove blanks/Unknowns/Nones, and sort
+        const medications = [...new Set(allData.map(d => d.medication))]
+            .filter(m => m && m !== 'None' && m !== 'Unknown')
+            .sort();
+            
+        medSelect.innerHTML = '<option value="">All Medications</option>';
+        medications.forEach(med => {
+            const option = document.createElement('option');
+            option.value = med;
+            option.textContent = med;
+            medSelect.appendChild(option);
+        });
+    }
+
+    // 4. Populate Blood Types
+    const bloodSelect = document.getElementById('bloodtype-select');
+    if (bloodSelect) {
+        const bloodTypes = [...new Set(allData.map(d => d.bloodType))].filter(b => b).sort();
+        bloodSelect.innerHTML = '<option value="">All Blood Types</option>';
+        bloodTypes.forEach(b => {
+            const option = document.createElement('option');
+            option.value = b;
+            option.textContent = b;
+            bloodSelect.appendChild(option);
+        });
+    }
+
+    // 5. Populate Years
+    const yearSelect = document.getElementById('year-select');
+    if (yearSelect) {
+        const years = [...new Set(allData.map(d => d.dateOfAdmission ? d.dateOfAdmission.getFullYear().toString() : null))]
+            .filter(y => y)
+            .sort((a, b) => b - a); // Newest first
+        yearSelect.innerHTML = '<option value="">All Years</option>';
+        years.forEach(y => {
+            const option = document.createElement('option');
+            option.value = y;
+            option.textContent = y;
+            yearSelect.appendChild(option);
+        });
+    }
+}
+
+// ---------------------------------------------------------
+// Handler Functions
+// ---------------------------------------------------------
+
 function handleConditionChange() {
     const select = document.getElementById('condition-select');
     filters.medicalCondition = select.value || null;
+    applyFilters();
+}
+
+function handleMedicationChange() {
+    const select = document.getElementById('medication-select');
+    filters.medication = select.value || null;
     applyFilters();
 }
 
@@ -58,6 +148,10 @@ function handleYearChange() {
     applyFilters();
 }
 
+// ---------------------------------------------------------
+// UI Update Logic
+// ---------------------------------------------------------
+
 function updateFilterUI() {
     // Update test result buttons
     document.querySelectorAll('.filter-chip').forEach(btn => {
@@ -74,6 +168,12 @@ function updateFilterUI() {
         conditionSelect.value = filters.medicalCondition || '';
     }
     
+    // 3. Update Medication Select (THIS WAS MISSING)
+    const medSelect = document.getElementById('medication-select');
+    if (medSelect) {
+        medSelect.value = filters.medication || '';
+    }
+
     // Update hospital select
     const hospitalSelect = document.getElementById('hospital-select');
     if (hospitalSelect) {
@@ -138,6 +238,15 @@ function updateFilterUI() {
                 </span>
             `;
         }
+        if (filters.medication) {
+            badgesContainer.innerHTML += `
+                <span class="filter-badge filter-badge-medication">
+                    <span class="badge-icon" title="Medication">💊</span>
+                    <span class="badge-label">${filters.medication}</span>
+                    <button class="badge-remove" onclick="setFilter('medication', '${filters.medication}')" title="Remove">×</button>
+                </span>
+            `;
+        }
         if (filters.ageGroup) {
             badgesContainer.innerHTML += `
                 <span class="filter-badge filter-badge-age">
@@ -184,5 +293,83 @@ function updateFilterUI() {
             `;
         }
     }
+
+    // Highlight sections (for collapsed rail) when any filter inside that section is active
+    const sectionMap = {
+        testResult: 'Test Outcome',
+        ageGroup: 'Age Bracket',
+        gender: 'Gender',
+        medicalCondition: 'Diagnosis',
+        medication: 'Medication',
+        hospital: 'Hospital',
+        bloodType: 'Blood Type',
+        admissionYear: 'Admission Year'
+    };
+
+    // Clear previous section-active classes
+    document.querySelectorAll('.filter-section').forEach(sec => sec.classList.remove('section-active'));
+
+    Object.keys(sectionMap).forEach(key => {
+        if (filters[key]) {
+            const label = sectionMap[key];
+            const sec = Array.from(document.querySelectorAll('.filter-section')).find(s => {
+                const lbl = s.querySelector('.filter-label');
+                return lbl && lbl.textContent.trim() === label;
+            });
+            if (sec) sec.classList.add('section-active');
+        }
+    });
 }
 
+// Sidebar toggle: keeps header/main in sync regardless of DOM order
+function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    if (!sb) return;
+    const collapsed = sb.classList.toggle('collapsed');
+    if (collapsed) {
+        document.body.classList.add('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', '1');
+    } else {
+        document.body.classList.remove('sidebar-collapsed');
+        localStorage.removeItem('sidebarCollapsed');
+    }
+
+    // Add hover titles/tooltips to section headers when collapsed so users see meaning
+    document.querySelectorAll('.filter-section').forEach(sec => {
+        const header = sec.querySelector('.filter-section-header');
+        const label = sec.querySelector('.filter-label');
+        if (header && label) {
+            if (collapsed) header.setAttribute('title', label.textContent.trim());
+            else header.removeAttribute('title');
+        }
+    });
+
+    // Update toggle button aria state if present
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+}
+
+// Initialize sidebar state from saved preference
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        if (localStorage.getItem('sidebarCollapsed')) {
+            const sb = document.getElementById('sidebar');
+            if (sb) {
+                sb.classList.add('collapsed');
+                document.body.classList.add('sidebar-collapsed');
+            }
+        }
+        // Ensure UI reflects any saved filter state and collapsed state on load
+        if (typeof updateFilterUI === 'function') updateFilterUI();
+        // If starting collapsed, add titles for each section header so icons are discoverable
+        if (document.body.classList.contains('sidebar-collapsed')) {
+            document.querySelectorAll('.filter-section').forEach(sec => {
+                const header = sec.querySelector('.filter-section-header');
+                const label = sec.querySelector('.filter-label');
+                if (header && label) header.setAttribute('title', label.textContent.trim());
+            });
+        }
+    } catch (e) {
+        // ignore storage errors
+    }
+});

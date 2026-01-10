@@ -120,10 +120,21 @@
 
 /* ===== Layout Fix: Avoid :has() dependency ===== */
 .sidebar.collapsed ~ .header {
+    /* kept for backwards compatibility if DOM order changes */
     left: var(--sidebar-width-collapsed);
 }
 
 .sidebar.collapsed ~ .main {
+    margin-left: var(--sidebar-width-collapsed);
+}
+
+/* Preferred: control header/main via a body-level class so DOM order
+   doesn't matter. Toggle `body.sidebar-collapsed` from JS. */
+body.sidebar-collapsed .header {
+    left: var(--sidebar-width-collapsed);
+}
+
+body.sidebar-collapsed .main {
     margin-left: var(--sidebar-width-collapsed);
 }
 
@@ -428,6 +439,125 @@
     align-items: center;
 }
 
+/* ===== Modern Filter UI Enhancements ===== */
+/* Section card look */
+.filter-section {
+    background: transparent;
+    padding: 8px 0;
+    border-radius: 10px;
+    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+.filter-section:hover {
+    background: rgba(15,23,42,0.02);
+}
+
+.filter-section .filter-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 8px;
+}
+
+.filter-section .filter-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14,165,233,0.06);
+    color: var(--primary);
+    font-size: 18px;
+    box-shadow: 0 2px 6px rgba(2,6,23,0.03);
+}
+
+.filter-section .filter-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0;
+}
+
+/* Chip buttons: modern pill style */
+.filter-chip {
+    background: #fff;
+    border: 1px solid rgba(15,23,42,0.06);
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(2,6,23,0.04);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.filter-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+}
+.filter-chip.active {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 8px 24px rgba(14,165,233,0.12);
+}
+
+/* Smaller chip variant keeps pill feel */
+.filter-chip.small {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+}
+
+/* Clean select styling */
+.filter-select {
+    width: 100%;
+    appearance: none;
+    background: #fff;
+    border: 1px solid rgba(2,6,23,0.06);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+}
+.filter-select:hover, .filter-select:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 10px 30px rgba(14,165,233,0.06);
+}
+.select-arrow {
+    right: 14px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Layout: group actions with visual spacing */
+.filter-actions {
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Reset button inside footer: keep consistent with card look */
+.sidebar-footer {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+}
+
+/* Keyboard focus states for accessibility */
+.filter-chip:focus,
+.filter-select:focus,
+.btn-reset:focus,
+.sidebar-toggle:focus {
+    outline: 3px solid rgba(14,165,233,0.14);
+    outline-offset: 2px;
+}
+
+/* When expanded: tighten spacing so the sidebar looks modern and airy */
+.sidebar .sidebar-content {
+    padding: 18px 14px;
+}
+
+
 /* Modern Chip Buttons */
 .filter-chip {
     background: var(--bg-primary);
@@ -527,12 +657,19 @@
 .active-filters-strip {
     background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
     border-bottom: 1px solid #e0f2fe;
-    padding: 12px 2rem;
+    position: sticky;
+    top: var(--header-height);
+    left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    box-sizing: border-box;
+    padding: 12px 1rem;
     display: flex;
     align-items: center;
     gap: 12px;
     animation: slideDown 0.3s ease-out;
     flex-wrap: wrap;
+    /* Ensure the strip does not overlap the fixed sidebar/header: sit beneath them */
+    z-index: 35;
 }
 
 @keyframes slideDown {
@@ -1325,11 +1462,17 @@
             .active-filters-strip {
                 background: var(--primary-light);
                 border-bottom: 1px solid rgba(14, 165, 233, 0.2);
-                padding: 0.75rem 2rem;
+                position: sticky;
+                top: var(--header-height);
+                left: 0;
+                width: 100%;
+                padding: 0.75rem 1rem;
                 display: flex;
                 align-items: center;
                 gap: 1rem;
                 animation: slideDown 0.3s ease-out;
+                box-sizing: border-box;
+                z-index: 35;
             }
             
             /* Adjust sidebar toggle for mobile overlay effect */
@@ -1337,6 +1480,171 @@
                 display: none; /* Hide internal sidebar toggle, rely on header menu if implemented, or keep visible */
             }
         }
+
+/* Enhanced collapsed-rail visuals for larger screens */
+@media (min-width: 769px) {
+    .sidebar {
+        box-shadow: none;
+        border-right: 1px solid var(--border-color);
+    }
+
+    .sidebar .filter-section {
+        margin-bottom: 12px;
+    }
+
+    /* Make active filters strip sticky below the header so it doesn't get overlapped */
+    .active-filters-strip {
+        position: sticky;
+        top: var(--header-height);
+        left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+        box-sizing: border-box;
+        /* lower than sidebar (50) and header (40) so it doesn't visually overlap */
+        z-index: 35;
+    }
+
+        /* Collapsed rail: keep only icons visible and hide controls */
+    .sidebar.collapsed {
+        overflow: visible;
+        width: var(--sidebar-width-collapsed);
+    }
+
+    .sidebar.collapsed .sidebar-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 6px;
+    }
+
+    .sidebar.collapsed .filter-section {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 4px;
+        border-radius: 8px;
+    }
+
+    .sidebar.collapsed .filter-section .filter-actions,
+    .sidebar.collapsed .filter-section .select-wrapper,
+    .sidebar.collapsed .filter-section .filter-help {
+        display: none !important; /* hide actionable controls when collapsed */
+    }
+
+    .sidebar.collapsed .filter-section .filter-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+    }
+
+    .sidebar.collapsed .filter-section-header .filter-icon {
+        font-size: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Hide textual labels and actionable controls in collapsed state so only icons show */
+    .sidebar.collapsed .filter-label,
+    .sidebar.collapsed .filter-header .filter-label,
+    .sidebar.collapsed .filter-section .filter-actions,
+    .sidebar.collapsed .select-wrapper,
+    .sidebar.collapsed .filter-help {
+        display: none !important;
+    }
+
+    /* Hide long sidebar title when collapsed and keep toggle visible */
+    .sidebar.collapsed .sidebar-title-text {
+        display: none !important;
+    }
+
+    /* Collapse footer text (Reset) to icon-only if present */
+    .sidebar.collapsed .sidebar-footer .btn-reset span {
+        display: none !important;
+    }
+
+    /* Slightly increase icon contrast when collapsed */
+    .sidebar.collapsed .filter-icon {
+        opacity: 1;
+        font-size: 20px;
+    }
+
+    /* Ensure the collapse toggle remains visible and small */
+    .sidebar .sidebar-toggle {
+        background: transparent;
+        border: none;
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .sidebar .sidebar-toggle:hover {
+        background: rgba(14,165,233,0.06);
+        border-color: var(--border-color);
+    }
+
+    /* Tighter badge styles offset when sidebar is collapsed */
+    body.sidebar-collapsed .active-filters-strip {
+        left: var(--sidebar-width-collapsed);
+        width: calc(100% - var(--sidebar-width-collapsed));
+        z-index: 35;
+    }
+}
+
+/* Reset button: show icon-only when sidebar is collapsed */
+.btn-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: white;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-reset .reset-icon {
+    display: none;
+    font-size: 18px;
+}
+.btn-reset .reset-text {
+    display: inline;
+}
+
+/* Collapsed sidebar: hide the text and show the bin icon only */
+.sidebar.collapsed .btn-reset {
+    width: 44px;
+    height: 44px;
+    padding: 6px;
+    justify-content: center;
+}
+.sidebar.collapsed .btn-reset .reset-text {
+    display: none !important;
+}
+.sidebar.collapsed .btn-reset .reset-icon {
+    display: inline-flex !important;
+}
+
+/* Also handle body.sidebar-collapsed fallback */
+body.sidebar-collapsed .btn-reset .reset-text { display: none !important; }
+body.sidebar-collapsed .btn-reset .reset-icon { display: inline-flex !important; }
+
+/* Visual indicator for sections that have an active filter (useful for collapsed rail) */
+.filter-section.section-active {
+    background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(20,184,166,0.04));
+}
+.sidebar.collapsed .filter-section.section-active {
+    background: var(--primary);
+    color: white;
+}
+.sidebar.collapsed .filter-section.section-active .filter-icon {
+    color: white;
+}
 
         /* ===== Final Filters Bar Authority ===== */
 .filters-bar {
@@ -1356,4 +1664,37 @@
 
 .modal.show .modal-content {
     animation: slideUp 0.3s ease-out;
+}
+
+.filter-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-primary);
+    width: fit-content;
+    margin-bottom: 8px;
+}
+
+.filter-indicator .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3b82f6;
+}
+
+.filter-indicator button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.filter-indicator.hidden {
+    display: none;
 }
