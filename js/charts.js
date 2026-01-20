@@ -2354,24 +2354,21 @@ function drawSeasonalityChart() {
         .style("fill", "var(--text-secondary)");
 }
 
-// ===== Parallel Coordinates: Complete (Stable + Filters + Detailed Tooltip) =====
+// ===== Parallel Coordinates=====
 function drawParallelCoordinatesChart() {
     const containerId = 'parallel-coordinates-chart';
     const container = document.getElementById(containerId);
-
     if (!container) return;
 
     const rect = container.getBoundingClientRect();
     const width = rect.width;
-    const height = 400; 
+    const height = 400;
+    if (width === 0) return;
 
-    if (width === 0) return; 
-
-    // 1. Setup SVG (Get or Create Pattern)
     let svg = d3.select(container).select('svg');
     let g;
-    
-    const margin = { top: 40, right: 10, bottom: 20, left: 10 };
+
+    const margin = { top: 50, right: 60, bottom: 20, left: 60 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -2381,19 +2378,23 @@ function drawParallelCoordinatesChart() {
             .attr('width', width)
             .attr('height', height)
             .style('display', 'block');
-        
+
         g = svg.append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`)
-            .attr('class', 'chart-group');
-            
+            .attr('class', 'chart-group')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
         g.append('g').attr('class', 'layer-paths');
         g.append('g').attr('class', 'layer-axes');
-        g.append('text').attr('class', 'no-data-msg')
-            .attr('x', innerWidth / 2).attr('y', innerHeight / 2)
-            .attr('text-anchor', 'middle').style('opacity', 0);
+        g.append('text')
+            .attr('class', 'no-data-msg')
+            .attr('x', innerWidth / 2)
+            .attr('y', innerHeight / 2)
+            .attr('text-anchor', 'middle')
+            .style('opacity', 0);
     } else {
         svg.attr('width', width).attr('height', height);
-        g = svg.select('.chart-group');
+        g = svg.select('.chart-group')
+             .attr('transform', `translate(${margin.left},${margin.top})`);
     }
 
     if (!filteredData || filteredData.length === 0) {
@@ -2404,7 +2405,6 @@ function drawParallelCoordinatesChart() {
     }
     g.select('.no-data-msg').style('opacity', 0);
 
-    // 2. Define Dimensions & Filter Mapping
     const dimensions = [
         { name: 'ageGroup', label: 'Age Group' },
         { name: 'admissionType', label: 'Admission' },
@@ -2413,29 +2413,29 @@ function drawParallelCoordinatesChart() {
     ];
 
     const filterKeys = {
-        'ageGroup': 'ageGroup',
-        'admissionType': 'admissionType',
-        'medicalCondition': 'medicalCondition',
-        'testResults': 'testResult' 
+        ageGroup: 'ageGroup',
+        admissionType: 'admissionType',
+        medicalCondition: 'medicalCondition',
+        testResults: 'testResult'
     };
 
-    // 3. Aggregate Data
-    let groupedData = d3.rollups(filteredData, 
-        v => v.length, 
-        d => dimensions.map(dim => d[dim.name] || 'Unknown').join('||') 
+    const groupedData = d3.rollups(
+        filteredData,
+        v => v.length,
+        d => dimensions.map(dim => d[dim.name] || 'Unknown').join('||')
     ).map(([key, count]) => {
         const parts = key.split('||');
-        const obj = { count: count, key: key };
+        const obj = { key, count };
         dimensions.forEach((dim, i) => obj[dim.name] = parts[i]);
         return obj;
     });
 
     const totalPatients = filteredData.length;
-    const threshold = Math.max(1, Math.ceil(totalPatients * 0.005)); 
-    let renderData = groupedData.filter(d => d.count >= threshold);
-    renderData.sort((a, b) => a.count - b.count); 
+    const threshold = Math.max(1, Math.ceil(totalPatients * 0.005));
+    const renderData = groupedData
+        .filter(d => d.count >= threshold)
+        .sort((a, b) => a.count - b.count);
 
-    // 4. Update Scales
     const yScales = {};
     dimensions.forEach(dim => {
         const values = [...new Set(filteredData.map(d => d[dim.name] || 'Unknown'))].sort();
@@ -2446,105 +2446,144 @@ function drawParallelCoordinatesChart() {
     });
 
     const x = d3.scalePoint()
-        .range([0, innerWidth])
-        .padding(0.1)
-        .domain(dimensions.map(d => d.name));
+        .domain(dimensions.map(d => d.name))
+        .range([0, innerWidth]);
 
     const maxCount = d3.max(renderData, d => d.count) || 1;
-    const strokeWidthScale = d3.scaleLinear().domain([1, maxCount]).range([0.8, 8]); 
-    const opacityScale = d3.scaleLinear().domain([1, maxCount]).range([0.35, 0.9]);
+    const strokeWidthScale = d3.scaleLinear().domain([1, maxCount]).range([1.5, 10]);
+    const opacityScale = d3.scaleLinear().domain([1, maxCount]).range([0.3, 0.8]);
 
-    const scheme = window.currentColorScheme || { Normal: '#22c55e', Abnormal: '#ef4444', Inconclusive: '#f59e0b' };
+    const scheme = window.currentColorScheme || {
+        Normal: '#22c55e',
+        Abnormal: '#ef4444',
+        Inconclusive: '#f59e0b'
+    };
+
     const colorScale = d => {
         if (d.testResults === 'Normal') return scheme.Normal;
         if (d.testResults === 'Abnormal') return scheme.Abnormal;
         return scheme.Inconclusive || '#ccc';
     };
 
-    // 5. Draw Lines 
     const pathGenerator = d3.line()
         .x((d, i) => x(dimensions[i].name))
         .y((d, i) => yScales[dimensions[i].name](d))
         .curve(d3.curveMonotoneX);
 
-    const paths = g.select('.layer-paths').selectAll('path.flow').data(renderData, d => d.key);
+    const paths = g.select('.layer-paths')
+        .selectAll('path.flow')
+        .data(renderData, d => d.key);
+
     paths.exit().remove();
 
-    const pathsEnter = paths.enter().append('path').attr('class', 'flow')
+    const pathsEnter = paths.enter()
+        .append('path')
+        .attr('class', 'flow')
         .style('fill', 'none')
+        .style('cursor', 'pointer')
         .style('mix-blend-mode', 'multiply')
-        .style('cursor', 'pointer'); 
+        .style('pointer-events', 'stroke')
+        .style('stroke-linecap', 'round');
 
-    paths.merge(pathsEnter)
+    const allPaths = paths.merge(pathsEnter)
         .attr('d', d => pathGenerator(dimensions.map(dim => d[dim.name])))
         .style('stroke', d => colorScale(d))
         .style('stroke-width', d => strokeWidthScale(d.count))
-        .style('opacity', d => opacityScale(d.count))
-        .on('mouseover', function(event, d) {
-            d3.selectAll('.flow').style('opacity', 0.05);
-            d3.select(this).style('stroke', '#ffffff').style('opacity', 1)
-                .style('stroke-width', strokeWidthScale(d.count) + 2).raise();
-            
+        .style('opacity', d => opacityScale(d.count));
+
+    allPaths
+        .on('mouseenter', function (event, d) {
+            g.select('.layer-paths').selectAll('.flow')
+                .interrupt() 
+                .style('opacity', 0.05);
+
+            d3.select(this)
+                .interrupt()
+                .style('opacity', 1)
+                .style('stroke-width', strokeWidthScale(d.count) + 3)
+                .raise();
+
             if (typeof showTooltip === 'function') {
-                const percentage = ((d.count / totalPatients) * 100).toFixed(1);
-                
+                const pct = ((d.count / totalPatients) * 100).toFixed(1);
                 showTooltip(event, `
-                    <div style="font-family:sans-serif; min-width:180px;">
-                        <div style="border-bottom:1px solid #ffffff; margin-bottom:6px; padding-bottom:4px;">
-                            <strong style="font-size:13px; ">Patient Group</strong>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px;">
-                            <span>Count:</span> 
-                            <strong>${d.count} (${percentage}%)</strong>
-                        </div>
-                        <div style="display:grid; grid-template-columns: 70px auto; gap:4px; font-size:12px;">
-                            <span style="color:#fff;">Age:</span> <strong>${d.ageGroup}</strong>
-                            <span style="color:#fff;">Admission:</span> <strong>${d.admissionType}</strong>
-                            <span style="color:#fff;">Condition:</span> <strong>${d.medicalCondition}</strong>
-                            <span style="color:#fff;">Outcome:</span> <strong style="color:${colorScale(d)}">${d.testResults}</strong>
-                        </div>
-                    </div>
+                    <strong>Patient Group</strong><br/>
+                    Count: <b>${d.count}</b> (${pct}%)<br/>
+                    Age: <b>${d.ageGroup}</b><br/>
+                    Admission: <b>${d.admissionType}</b><br/>
+                    Condition: <b>${d.medicalCondition}</b><br/>
+                    Outcome: <b style="color:${colorScale(d)}">${d.testResults}</b>
                 `);
             }
         })
-        .on('mouseout', function(event, d) {
-            d3.selectAll('.flow')
-                .style('stroke', d => colorScale(d))
+        .on('mouseleave', function () {
+            g.select('.layer-paths').selectAll('.flow')
+                .interrupt()
                 .style('opacity', d => opacityScale(d.count))
                 .style('stroke-width', d => strokeWidthScale(d.count));
+
             if (typeof hideTooltip === 'function') hideTooltip();
         });
 
-    // 6. Update Axes
-    const axisGroups = g.select('.layer-axes').selectAll('.axis-group').data(dimensions);
+    const axisGroups = g.select('.layer-axes')
+        .selectAll('.axis-group')
+        .data(dimensions);
+
     axisGroups.exit().remove();
-    const axisEnter = axisGroups.enter().append('g').attr('class', 'axis-group');
+
+    const axisEnter = axisGroups.enter()
+        .append('g')
+        .attr('class', 'axis-group');
 
     axisGroups.merge(axisEnter)
         .attr('transform', d => `translate(${x(d.name)})`)
-        .each(function(dim) {
-            d3.select(this).call(d3.axisLeft(yScales[dim.name]));
-            d3.select(this).selectAll('.domain').style('stroke', 'var(--text-primary)').style('stroke-width', 2);
+        .each(function (dim, i) {
+            const isLast = i === dimensions.length - 1;
+            const axisProvider = isLast ? d3.axisRight(yScales[dim.name]) : d3.axisLeft(yScales[dim.name]);
             
-            const label = d3.select(this).selectAll('.axis-label').data([dim]);
-            label.enter().append('text').attr('class', 'axis-label').merge(label)
-                .attr('y', -15).style('text-anchor', 'middle')
-                .text(d => d.label).style('font-weight', 'bold').style('fill', 'var(--text-primary)')
-                .style("text-shadow", "0px 1px 2px rgba(255,255,255,0.8)");
+            const axisSelection = d3.select(this);
+            axisSelection.call(axisProvider);
+            
+            const ticks = axisSelection.selectAll('.tick text');
 
-            d3.select(this).selectAll('.tick text')
-                .style('fill', 'var(--text-primary)')
-                .style('font-weight', '600')
+            axisSelection.selectAll('.tick-halo').remove();
+
+            ticks.clone(true)
+                .lower()
+                .attr('class', 'tick-halo')
+                .style('fill', 'none')
+                .style('stroke', '#fff')
+                .style('stroke-width', '4px')
+                .style('stroke-linejoin', 'round')
+                .style('opacity', 0.9);
+
+            ticks
+                .style('fill', '#111')
+                .style('font-weight', '700')
+                .style('font-size', '12px')
                 .style('cursor', 'pointer')
-                .style("stroke", "#ffffff").style("stroke-width", "4px").style("paint-order", "stroke").style("stroke-opacity", "0.85")
-                .on('mouseover', function() { d3.select(this).style('fill', '#000').style('font-size', '12px'); })
-                .on('mouseout', function() { d3.select(this).style('fill', 'var(--text-primary)').style('font-size', '11px'); })
-                .on('click', (event, textValue) => {
-                    const filterKey = filterKeys[dim.name]; 
-                    if(typeof setFilter === 'function') setFilter(filterKey, textValue);
+                .on('click', (event, value) => {
+                    const key = filterKeys[dim.name];
+                    if (typeof setFilter === 'function') setFilter(key, value);
                 });
+
+            const label = axisSelection.selectAll('.axis-label').data([dim]);
+            const labelEnter = label.enter().append('text').attr('class', 'axis-label');
+            
+            label.merge(labelEnter)
+                .attr('y', -25)
+                .style('text-anchor', 'middle')
+                .style('font-weight', 'bold')
+                .style('font-size', '14px')
+                .style('fill', '#000')
+                .text(dim.label);
+
+            axisSelection.selectAll('.domain')
+                .style('stroke', '#444')
+                .style('stroke-width', 1.5);
         });
 }
+
+
 
 // ===== Update All Charts Function =====
 function updateCharts() {
