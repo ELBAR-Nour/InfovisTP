@@ -1,42 +1,39 @@
-// ===== Color Blindness Accessibility Module =====
 
 const COLOR_SCHEMES = {
     normal: {
-        // Standard Semantic Colors
-        Normal: '#22c55e',       // Green
-        Abnormal: '#ef4444',     // Red
-        Inconclusive: '#f59e0b', // Amber
-        male: '#0ea5e9',         // Blue
-        female: '#ec4899',       // Pink
+        Normal: '#22c55e',       
+        Abnormal: '#ef4444',     
+        Inconclusive: '#f59e0b', 
+        male: '#0ea5e9',         
+        female: '#ec4899',       
         categorical: [
-            '#3b82f6', // Bright Blue
-            '#ef4444', // Red
-            '#10b981', // Emerald
-            '#f59e0b', // Amber
-            '#8b5cf6', // Violet
-            '#ec4899', // Pink
-            '#06b6d4', // Cyan
-            '#f97316', // Orange
-            '#6366f1', // Indigo
-            '#84cc16'  // Lime
+            '#3b82f6', 
+            '#ef4444', 
+            '#10b981', 
+            '#f59e0b', 
+            '#8b5cf6', 
+            '#ec4899', 
+            '#06b6d4', 
+            '#f97316', 
+            '#6366f1', 
+            '#84cc16'  
         ]
     },
     protanopia: {
-        // Red-blind: Avoid Red/Green. Use Blue/Yellow/Grays.
-        Normal: '#0ea5e9',       // Blue
-        Abnormal: '#6b21a8',     // Purple 
-        Inconclusive: '#f59e0b', // Yellow
+        Normal: '#0ea5e9',      
+        Abnormal: '#6b21a8',    
+        Inconclusive: '#f59e0b', 
         male: '#0ea5e9',
         female: '#f59e0b',
         categorical: [
-            '#0077b6', // Deep Blue
-            '#ffd166', // Soft Yellow
-            '#0096c7', // Cyan-Blue
-            '#48cae4', // Sky Blue
-            '#ffb703', // Gold
-            '#6b21a8', // Deep Purple
-            '#a0a0a0', // Gray
-            '#023e8a'  // Navy
+            '#0077b6', 
+            '#ffd166', 
+            '#0096c7', 
+            '#48cae4', 
+            '#ffb703', 
+            '#6b21a8', 
+            '#a0a0a0', 
+            '#023e8a'  
         ]
     },
     deuteranopia: {
@@ -46,31 +43,31 @@ const COLOR_SCHEMES = {
         male: '#0ea5e9',
         female: '#dc2626',
         categorical: [
-            '#0077b6', // Strong Blue
-            '#ffc300', // Vivid Yellow
-            '#00b4d8', // Light Blue
-            '#fb8500', // Orange-Gold
-            '#3d5a80', // Dark Blue-Gray
-            '#e07a5f', // Terra Cotta
-            '#98c1d9', // Pale Blue
-            '#293241'  // Dark Gunmetal
+            '#0077b6', 
+            '#ffc300', 
+            '#00b4d8', 
+            '#fb8500', 
+            '#3d5a80', 
+            '#e07a5f', 
+            '#98c1d9', 
+            '#293241'  
         ]
     },
     tritanopia: {
-        Normal: '#008080',       // Teal 
-        Abnormal: '#dc2626',     // Red
-        Inconclusive: '#9333ea', // Purple
+        Normal: '#008080',       
+        Abnormal: '#dc2626',     
+        Inconclusive: '#9333ea', 
         male: '#008080',
         female: '#dc2626',
         categorical: [
-            '#d90429', // Vivid Red
-            '#8d99ae', // Cool Gray
-            '#2b2d42', // Dark Gray/Black
-            '#ef233c', // Pinkish Red
-            '#0081a7', // Teal
-            '#00afb9', // Cyan
-            '#fdfcdc', // Very Light Beige (Contrast)
-            '#f07167'  // Salmon
+            '#d90429', 
+            '#8d99ae', 
+            '#2b2d42', 
+            '#ef233c', 
+            '#0081a7', 
+            '#00afb9', 
+            '#fdfcdc', 
+            '#f07167'  
         ]
     },
     achromatopsia: {
@@ -80,36 +77,32 @@ const COLOR_SCHEMES = {
         male: '#1f2937',
         female: '#9ca3af',
         categorical: [
-            '#000000', // Black
-            '#525252', // Dark Gray
-            '#a3a3a3', // Mid Gray
-            '#d4d4d4', // Light Gray
-            '#262626', // Almost Black
-            '#737373', // Mid-Dark Gray
-            '#e5e5e5', // Very Light Gray
-            '#171717'  // Ink
+            '#000000', 
+            '#525252', 
+            '#a3a3a3', 
+            '#d4d4d4', 
+            '#262626', 
+            '#737373', 
+            '#e5e5e5', 
+            '#171717'  
         ]
     }
 };
 
-// Get current vision type from localStorage or default to normal
 function getVisionType() {
     return localStorage.getItem('visionType') || 'normal';
 }
 
-// Get color scheme for current vision type
 function getColorScheme() {
     const visionType = getVisionType();
     return COLOR_SCHEMES[visionType] || COLOR_SCHEMES.normal;
 }
 
-// Set vision type and update colors
 function setVisionType(visionType) {
     localStorage.setItem('visionType', visionType);
     updateAllChartColors();
 }
 
-// Update COLORS object and refresh all charts
 function updateAllChartColors() {
     try {
         const scheme = getColorScheme();
@@ -129,7 +122,6 @@ function updateAllChartColors() {
             return;
         }
         
-
         setTimeout(() => {
             try {
                 if (typeof updateCharts === 'function' && typeof filteredData !== 'undefined') {
@@ -160,7 +152,6 @@ function updateAllChartColors() {
     }
 }
 
-// Show color blindness modal
 function showColorBlindModal() {
     const modal = document.getElementById('colorblind-modal');
     if (modal) {
@@ -177,7 +168,6 @@ function showColorBlindModal() {
     }
 }
 
-// Hide color blindness modal
 function hideColorBlindModal() {
     const modal = document.getElementById('colorblind-modal');
     if (modal) {
@@ -187,7 +177,6 @@ function hideColorBlindModal() {
     }
 }
 
-// Confirm vision type and proceed
 function confirmVisionType() {
     const selected = document.querySelector('input[name="vision-type"]:checked');
     if (!selected) {
@@ -196,9 +185,9 @@ function confirmVisionType() {
     
     const visionType = selected.value;
     const isFirstTime = !localStorage.getItem('visionType');
+    
     hideColorBlindModal();
     
-    // Update vision type and colors
     setVisionType(visionType);
     
     if (isFirstTime) {
@@ -206,12 +195,14 @@ function confirmVisionType() {
     }
 }
 
-// Allow user to change vision type from header
+
 function openVisionSettings() {
+    
     try {
         showColorBlindModal();
     } catch (error) {
         console.error('Error opening vision settings:', error);
+        
         const modal = document.getElementById('colorblind-modal');
         if (modal) {
             modal.classList.add('active');

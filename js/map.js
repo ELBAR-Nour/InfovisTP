@@ -1,3 +1,4 @@
+
 require([
   "esri/Map",
   "esri/views/MapView",
@@ -25,9 +26,9 @@ require([
   const hospitalsLayer = new GraphicsLayer();
   map.add(hospitalsLayer);
 
-  // ============================================================
-  // LEGEND LOGIC 
-  // ============================================================
+  
+  
+  
   window.updateMapLegend = function() {
     const legendDiv = document.getElementById('map-legend');
     if (legendDiv) {
@@ -53,15 +54,17 @@ require([
     }
   };
 
+  
   const legendDiv = document.createElement('div');
   legendDiv.id = 'map-legend';
   view.ui.add(legendDiv, 'top-right');
 
+  
   window.updateMapLegend(); 
 
-  // ============================================================
-  // VIEW READY LOGIC
-  // ============================================================
+  
+  
+  
   view.when(() => {
     console.log("MapView ready");
     
@@ -73,6 +76,7 @@ require([
     }, 200);
   });
 
+  
 
   let isPopupPinned = false;
 
@@ -131,9 +135,9 @@ require([
     }
   });
 
-  // ============================================================
-  // DATA DRAWING LOGIC
-  // ============================================================
+  
+  
+  
   const GEOCODER_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
   const hospitalLocationCache = new Map();
   let renderCounter = 0;
@@ -143,6 +147,7 @@ require([
     
     renderCounter++;
     await drawHospitals(renderCounter);
+    
     
     if (typeof window.updateMapLegend === 'function') window.updateMapLegend();
   };

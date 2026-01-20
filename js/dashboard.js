@@ -40,7 +40,6 @@ function clearAllFilters() {
 
 
 function populateDropdowns() {
-    // 1. Populate Medical Conditions
     const conditionSelect = document.getElementById('condition-select');
     if (conditionSelect) {
         const conditions = [...new Set(allData.map(d => d.medicalCondition))].filter(c => c).sort();
@@ -53,7 +52,6 @@ function populateDropdowns() {
         });
     }
 
-    // 2. Populate Hospitals
     const hospitalSelect = document.getElementById('hospital-select');
     if (hospitalSelect) {
         const hospitals = [...new Set(allData.map(d => d.hospital))].filter(h => h).sort();
@@ -66,10 +64,8 @@ function populateDropdowns() {
         });
     }
 
-    // 3. Populate Medications 
     const medSelect = document.getElementById('medication-select');
     if (medSelect) {
-        // Extract unique medications, remove blanks/Unknowns/Nones, and sort
         const medications = [...new Set(allData.map(d => d.medication))]
             .filter(m => m && m !== 'None' && m !== 'Unknown')
             .sort();
@@ -83,7 +79,6 @@ function populateDropdowns() {
         });
     }
 
-    // 4. Populate Blood Types
     const bloodSelect = document.getElementById('bloodtype-select');
     if (bloodSelect) {
         const bloodTypes = [...new Set(allData.map(d => d.bloodType))].filter(b => b).sort();
@@ -96,12 +91,11 @@ function populateDropdowns() {
         });
     }
 
-    // 5. Populate Years
     const yearSelect = document.getElementById('year-select');
     if (yearSelect) {
         const years = [...new Set(allData.map(d => d.dateOfAdmission ? d.dateOfAdmission.getFullYear().toString() : null))]
             .filter(y => y)
-            .sort((a, b) => b - a); // Newest first
+            .sort((a, b) => b - a); 
         yearSelect.innerHTML = '<option value="">All Years</option>';
         years.forEach(y => {
             const option = document.createElement('option');
@@ -124,9 +118,6 @@ function populateDropdowns() {
     }
 }
 
-// ---------------------------------------------------------
-// Handler Functions
-// ---------------------------------------------------------
 
 function handleConditionChange() {
     const select = document.getElementById('condition-select');
@@ -163,38 +154,30 @@ function handleAdmissionTypeChange() {
     applyFilters();
 }
 
-// ---------------------------------------------------------
-// UI Update Logic
-// ---------------------------------------------------------
 
 function updateFilterUI() {
-    // Update test result buttons
     document.querySelectorAll('.filter-chip').forEach(btn => {
         const btnText = btn.textContent.trim();
-        const filterType = btn.dataset.filterType || 'testResult'; // Assuming you might distinguish groups
+        const filterType = btn.dataset.filterType || 'testResult'; 
         
         btn.classList.remove('active');
         
-        // Check if this button matches selected Test Result OR selected Age Group
         if (filters.testResult === btnText || filters.ageGroup === btnText) {
             btn.classList.add('active');
         }
     });
 
 
-    // Update condition select
     const conditionSelect = document.getElementById('condition-select');
     if (conditionSelect) {
         conditionSelect.value = filters.medicalCondition || '';
     }
     
-    // 3. Update Medication Select 
     const medSelect = document.getElementById('medication-select');
     if (medSelect) {
         medSelect.value = filters.medication || '';
     }
 
-    // Update hospital select
     const hospitalSelect = document.getElementById('hospital-select');
     if (hospitalSelect) {
         hospitalSelect.value = filters.hospital || '';
@@ -203,19 +186,16 @@ function updateFilterUI() {
     const admissionSelect = document.getElementById('admission-select');
     if (admissionSelect) admissionSelect.value = filters.admissionType || '';
     
-    // Update blood type select
     const bloodTypeSelect = document.getElementById('bloodtype-select');
     if (bloodTypeSelect) {
         bloodTypeSelect.value = filters.bloodType || '';
     }
     
-    // Update year select
     const yearSelect = document.getElementById('year-select');
     if (yearSelect) {
         yearSelect.value = filters.admissionYear || '';
     }
     
-    // Update gender buttons
     document.querySelectorAll('.filter-chip[data-filter="Male"], .filter-chip[data-filter="Female"]').forEach(btn => {
         const btnText = btn.textContent.trim();
         btn.classList.remove('active');
@@ -224,7 +204,6 @@ function updateFilterUI() {
         }
     });
 
-    // Update filter badges display with better styling
     const hasFilters = Object.values(filters).some(v => v !== null);
     const filtersDisplay = document.getElementById('filters-display');
     if (filtersDisplay) {
@@ -352,7 +331,6 @@ function updateFilterUI() {
     });
 }
 
-// Sidebar toggle
 function toggleSidebar() {
     const sb = document.getElementById('sidebar');
     if (!sb) return;
@@ -374,12 +352,10 @@ function toggleSidebar() {
         }
     });
 
-    // Update toggle button 
     const toggleBtn = document.getElementById('sidebar-toggle');
     if (toggleBtn) toggleBtn.setAttribute('aria-expanded', String(!collapsed));
 }
 
-// Initialize sidebar state from saved preference
 document.addEventListener('DOMContentLoaded', function() {
     try {
         if (localStorage.getItem('sidebarCollapsed')) {

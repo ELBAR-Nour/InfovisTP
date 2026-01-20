@@ -1,4 +1,5 @@
-// ===== Global State =====
+
+
 let allData = [];
 let filteredData = [];
 let filters = { 
@@ -25,19 +26,19 @@ function getAgeGroup(age) {
 
 function parseRecord(row) {
     try {
-        // --- Date parsing ---
+        
         const admission = row['Date of Admission'] ? new Date(row['Date of Admission']) : null;
         const discharge = row['Discharge Date'] ? new Date(row['Discharge Date']) : null;
         if (!admission || !discharge || isNaN(admission) || isNaN(discharge)) return null;
 
-        // --- Number parsing ---
+        
         const age = row['Age'] ? parseInt(row['Age'], 10) : null;
         const billingAmount = row['Billing Amount'] ? parseFloat(row['Billing Amount']) : 0;
         const roomNumber = row['Room Number'] ? parseInt(row['Room Number'], 10) : null;
 
         if (age === null) return null; 
 
-        // --- Derived features ---
+        
         const lengthOfStay = Math.ceil((discharge - admission) / (1000 * 60 * 60 * 24));
         const ageGroup = getAgeGroup(age);
 
@@ -65,12 +66,13 @@ function parseRecord(row) {
 }
 
 
-// Load CSV 
+
 async function loadData() {
     try {
         let parsed = [];
         try {
-
+            
+            
             if (typeof Papa !== 'undefined' && Papa.parse) {
                 allData = [];
                 let processed = 0;
@@ -83,6 +85,7 @@ async function loadData() {
                         worker: true,
                         chunk: function(results) {
                             const rows = results.data;
+                            
                             let useful = rows;
                             if (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0) {
                                 const remaining = Math.max(0, MAX_RECORDS - allData.length);
@@ -96,6 +99,7 @@ async function loadData() {
                                 const p = loadingEl.querySelector('p');
                                 if (p) p.textContent = `Parsing ${allData.length} rows...`;
                             }
+                            
                             if (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0 && allData.length >= MAX_RECORDS) {
                                 this.abort();
                             }
@@ -112,38 +116,40 @@ async function loadData() {
                 const csvData = await d3.csv('data/healthcare_dataset.csv');
                 console.log(`✓ CSV loaded: ${csvData.length} records`);
 
-
-                const MAX_RECORDS = null; // we can set it 5000 as limit
+                
+                
+                
+                const MAX_RECORDS = null; 
                 const rows = (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0)
                     ? csvData.slice(0, MAX_RECORDS)
                     : csvData;
 
                 parsed = rows.map(parseRecord).filter(r => r !== null);
-                console.log(`Parsed: ${parsed.length} valid records (limit: ${MAX_RECORDS || 'none'})`);
+                console.log(`✓ Parsed: ${parsed.length} valid records (limit: ${MAX_RECORDS || 'none'})`);
             }
         } catch (e) {
             console.warn('CSV not found or parse failed, using generated sample data:', e);
         }
 
         if (parsed.length === 0) {
-            console.warn('No valid records from CSV, generating fallback data');
+            console.warn('⚠ No valid records from CSV, generating fallback data');
         }
 
         allData = parsed;
         
         filteredData = parsed;
 
-        console.log(`Data ready: ${allData.length} records`);
-        console.log(`Unique hospitals: ${[...new Set(allData.map(d => d.hospital))].join(', ')}`);
+        console.log(`✓ Data ready: ${allData.length} records`);
+        console.log(`✓ Unique hospitals: ${[...new Set(allData.map(d => d.hospital))].join(', ')}`);
 
-        // Apply color scheme based on vision type
+        
         const scheme = getColorScheme();
         COLORS.Normal = scheme.Normal;
         COLORS.Abnormal = scheme.Abnormal;
         COLORS.Inconclusive = scheme.Inconclusive;
         COLORS.male = scheme.male;
         COLORS.female = scheme.female;
-        // Store color scheme globally for charts to access
+        
         window.currentColorScheme = scheme;
 
         document.getElementById('loading').style.display = 'none';
@@ -164,6 +170,7 @@ async function loadData() {
     }
 }
 
+
 function updateStats() {
     const count = filteredData.length;
     const avgBilling = count > 0 ? filteredData.reduce((sum, d) => sum + d.billingAmount, 0) / count : 0;
@@ -179,7 +186,7 @@ function updateStats() {
     document.getElementById('stat-abnormal').textContent = abnormalRate.toFixed(1) + '%';
     document.getElementById('stat-conditions').textContent = conditions + ' conditions tracked';
 
-    // Update patient coverage KPI
+    
     const totalPatients = allData.length;
     const coveragePercent = totalPatients > 0 ? ((count / totalPatients) * 100).toFixed(1) : 0;
     const coverageElement = document.getElementById('stat-coverage');
@@ -199,7 +206,7 @@ function updateStats() {
     const doctorEl = document.getElementById('stat-doctors');
     if (doctorEl) doctorEl.textContent = uniqueDoctors.toLocaleString();
     
-    // Update patient subtitle to show total when filtered
+    
     const patientsSubtitle = document.getElementById('stat-patients-subtitle');
     if (patientsSubtitle) {
         const hasFilters = Object.values(filters).some(v => v !== null);
@@ -238,6 +245,7 @@ function populateConditionSelect() {
     const conditions = [...new Set(allData.map(d => d.medicalCondition))].sort();
     const select = document.getElementById('condition-select');
     if (select) {
+        
         const currentValue = select.value;
         select.innerHTML = '<option value="">All Conditions</option>';
         conditions.forEach(condition => {
@@ -249,8 +257,8 @@ function populateConditionSelect() {
         select.value = currentValue;
     }
 }
-
 function populateAdmissionTypeSelect() {
+    
     const types = [...new Set(allData.map(d => d.admissionType))]
         .filter(t => t && t !== 'Unknown')
         .sort();
@@ -258,16 +266,17 @@ function populateAdmissionTypeSelect() {
     const select = document.getElementById('admission-select');
     if (select) {
         const currentValue = select.value;
-        // Reset options
+        
         select.innerHTML = '<option value="">All Admission Types</option>';
         
-        // Add new options
+        
         types.forEach(type => {
             const option = document.createElement('option');
             option.value = type;
             option.textContent = type;
             select.appendChild(option);
         });
+        
         
         select.value = currentValue;
     }
@@ -324,6 +333,7 @@ function populateYearSelect() {
     }
 }
 function populateMedicationSelect() {
+    
     const medications = [...new Set(allData.map(d => d.medication))]
         .filter(m => m && m !== 'None' && m !== 'Unknown')
         .sort();
@@ -341,6 +351,7 @@ function populateMedicationSelect() {
         select.value = currentValue;
     }
 }
+
 
 if (typeof d3 !== 'undefined') {
     loadData();
