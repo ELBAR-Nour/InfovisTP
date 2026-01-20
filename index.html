@@ -16,7 +16,7 @@
 
 </head>
 <body>
-    <!-- Color Blindness Modal -->
+    
     <div id="colorblind-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" onclick="closeVisionModal()">×</button>
@@ -69,13 +69,13 @@
         </div>
     </div>
 
-    <!-- Loading State -->
+    
     <div id="loading" class="loading">
         <div class="spinner"></div>
         <p>Loading healthcare data...</p>
     </div>
 
-    <!-- Main App -->
+    
     <div id="app" style="display: none;">
         <header class="header">
             <div class="header-content">
@@ -344,6 +344,7 @@
 
             <div class="modal-footer">
                 <button class="btn-modal" onclick="closeHelpModal()">Close Guide</button>
+                <button class="btn-modal modal-demo" onclick="window.open('https://drive.google.com/file/d/1sKtQj0xc80r1mhTyT3pGw9rrsQXGVeup/view?usp=sharing','_blank')" title="View demo" style="margin-left:8px;">View Demo</button>
             </div>
         </div>
     </div>
@@ -505,10 +506,10 @@
         </footer>
     </div>
 
-    <!-- Tooltip -->
+    
     <div class="tooltip" id="tooltip"></div>
 
-    <!-- Help Modal Functions -->
+    
     <script>
         function openHelpModal() {
             document.getElementById('help-modal').style.display = 'flex';
@@ -535,7 +536,7 @@
 
     </script>
 
-    <!-- Scripts -->
+    
     <script src="js/colorblind.js"></script>
     <script src="js/data.js"></script>
     <script src="js/tooltip.js"></script>
