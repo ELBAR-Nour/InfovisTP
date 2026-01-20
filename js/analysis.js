@@ -1,4 +1,3 @@
-// ===== analysis.js =====
 function runAnalysis() {
     const featureCounts = {
         Age: new Set(filteredData.map(d=>d.ageGroup)).size,
@@ -9,11 +8,9 @@ function runAnalysis() {
     };
     console.log("Feature overview:", featureCounts);
 
-    // Example: identify most influential features
     console.log("Potential influential features for Test Results:");
     console.log("- Age group, Medical Condition, Admission Type, Hospital, Gender");
 
-    // Bias check
     const abnormalByAge = d3.rollup(filteredData, v=>v.filter(d=>d.testResults==='Abnormal').length, d=>d.ageGroup);
     console.log("Abnormal tests by age group:", abnormalByAge);
 

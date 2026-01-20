@@ -35,7 +35,7 @@ function parseRecord(row) {
         const billingAmount = row['Billing Amount'] ? parseFloat(row['Billing Amount']) : 0;
         const roomNumber = row['Room Number'] ? parseInt(row['Room Number'], 10) : null;
 
-        if (age === null) return null; // age required for analysis
+        if (age === null) return null; 
 
         // --- Derived features ---
         const lengthOfStay = Math.ceil((discharge - admission) / (1000 * 60 * 60 * 24));
@@ -65,17 +65,16 @@ function parseRecord(row) {
 }
 
 
-// Load CSV or generate sample data
+// Load CSV 
 async function loadData() {
     try {
         let parsed = [];
         try {
-            // Use PapaParse worker-based parsing when available to avoid blocking
-            // the main thread for large CSV files. Falls back to `d3.csv`.
+
             if (typeof Papa !== 'undefined' && Papa.parse) {
                 allData = [];
                 let processed = 0;
-                const MAX_RECORDS = null; // set to a number for dev limiting
+                const MAX_RECORDS = null; 
 
                 await new Promise((resolve, reject) => {
                     Papa.parse('data/healthcare_dataset.csv', {
@@ -84,7 +83,6 @@ async function loadData() {
                         worker: true,
                         chunk: function(results) {
                             const rows = results.data;
-                            // Apply optional limit if requested
                             let useful = rows;
                             if (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0) {
                                 const remaining = Math.max(0, MAX_RECORDS - allData.length);
@@ -98,7 +96,6 @@ async function loadData() {
                                 const p = loadingEl.querySelector('p');
                                 if (p) p.textContent = `Parsing ${allData.length} rows...`;
                             }
-                            // If we've reached a MAX_RECORDS cap, abort parsing early
                             if (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0 && allData.length >= MAX_RECORDS) {
                                 this.abort();
                             }
@@ -115,31 +112,29 @@ async function loadData() {
                 const csvData = await d3.csv('data/healthcare_dataset.csv');
                 console.log(`✓ CSV loaded: ${csvData.length} records`);
 
-                // By default load the full CSV. If you need to limit records for
-                // performance during development, set `MAX_RECORDS` to a positive
-                // integer. Leave `null` to use all rows.
-                const MAX_RECORDS = null; // e.g. 5000 to limit
+
+                const MAX_RECORDS = null; // we can set it 5000 as limit
                 const rows = (typeof MAX_RECORDS === 'number' && MAX_RECORDS > 0)
                     ? csvData.slice(0, MAX_RECORDS)
                     : csvData;
 
                 parsed = rows.map(parseRecord).filter(r => r !== null);
-                console.log(`✓ Parsed: ${parsed.length} valid records (limit: ${MAX_RECORDS || 'none'})`);
+                console.log(`Parsed: ${parsed.length} valid records (limit: ${MAX_RECORDS || 'none'})`);
             }
         } catch (e) {
             console.warn('CSV not found or parse failed, using generated sample data:', e);
         }
 
         if (parsed.length === 0) {
-            console.warn('⚠ No valid records from CSV, generating fallback data');
+            console.warn('No valid records from CSV, generating fallback data');
         }
 
         allData = parsed;
         
         filteredData = parsed;
 
-        console.log(`✓ Data ready: ${allData.length} records`);
-        console.log(`✓ Unique hospitals: ${[...new Set(allData.map(d => d.hospital))].join(', ')}`);
+        console.log(`Data ready: ${allData.length} records`);
+        console.log(`Unique hospitals: ${[...new Set(allData.map(d => d.hospital))].join(', ')}`);
 
         // Apply color scheme based on vision type
         const scheme = getColorScheme();
@@ -169,7 +164,6 @@ async function loadData() {
     }
 }
 
-// Sample Data generator 
 function updateStats() {
     const count = filteredData.length;
     const avgBilling = count > 0 ? filteredData.reduce((sum, d) => sum + d.billingAmount, 0) / count : 0;
@@ -244,7 +238,6 @@ function populateConditionSelect() {
     const conditions = [...new Set(allData.map(d => d.medicalCondition))].sort();
     const select = document.getElementById('condition-select');
     if (select) {
-        // Keep the "All Conditions" option
         const currentValue = select.value;
         select.innerHTML = '<option value="">All Conditions</option>';
         conditions.forEach(condition => {
@@ -256,8 +249,8 @@ function populateConditionSelect() {
         select.value = currentValue;
     }
 }
+
 function populateAdmissionTypeSelect() {
-    // Get unique admission types and sort them
     const types = [...new Set(allData.map(d => d.admissionType))]
         .filter(t => t && t !== 'Unknown')
         .sort();
@@ -276,7 +269,6 @@ function populateAdmissionTypeSelect() {
             select.appendChild(option);
         });
         
-        // Restore selected value if it exists
         select.value = currentValue;
     }
 }
@@ -317,7 +309,7 @@ function populateYearSelect() {
     const years = [...new Set(allData
         .map(d => d.dateOfAdmission ? d.dateOfAdmission.getFullYear() : null)
         .filter(y => y !== null)
-    )].sort((a, b) => b - a); // Sort descending (newest first)
+    )].sort((a, b) => b - a); 
     const select = document.getElementById('year-select');
     if (select) {
         const currentValue = select.value;
@@ -332,7 +324,6 @@ function populateYearSelect() {
     }
 }
 function populateMedicationSelect() {
-    // Get unique medications, filter out invalid ones, and sort
     const medications = [...new Set(allData.map(d => d.medication))]
         .filter(m => m && m !== 'None' && m !== 'Unknown')
         .sort();
@@ -351,7 +342,6 @@ function populateMedicationSelect() {
     }
 }
 
-// Start the application when D3 is ready
 if (typeof d3 !== 'undefined') {
     loadData();
 } else {

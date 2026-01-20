@@ -1,6 +1,3 @@
-// ===== Enhanced Charts.js with Full Interactivity =====
-
-// Helper function to get current color scheme
 function getCurrentColorScheme() {
     if (typeof window.currentColorScheme !== 'undefined') {
         return window.currentColorScheme;
@@ -8,7 +5,6 @@ function getCurrentColorScheme() {
     if (typeof getColorScheme === 'function') {
         return getColorScheme();
     }
-    // Fallback to default colors
     return {
         Normal: '#22c55e',
         Abnormal: '#ef4444',
@@ -18,7 +14,7 @@ function getCurrentColorScheme() {
     };
 }
 
-// ===== 1️⃣ Donut Chart: Test Results Distribution =====
+// ===== Donut Chart: Test Results Distribution =====
 function drawDonutChart() {
     const container = document.getElementById('donut-chart');
     container.innerHTML = '';
@@ -104,16 +100,14 @@ function drawDonutChart() {
     `).join('');
 }
 
-// ===== 2️⃣ Grouped Bar Chart: Conditions vs Test Results =====
+// ===== Grouped Bar Chart: Conditions vs Test Results =====
 function drawConditionsChart() {
     const container = document.getElementById('conditions-chart');
     container.innerHTML = '';
 
-    // 1. Increased bottom margin to make room for the legend
     const margin = { top: 20, right: 20, bottom: 80, left: 50 };
     const width = container.clientWidth - margin.left - margin.right;
     
-    // Increased base height from 260 to 350
     const height = 350 - margin.top - margin.bottom;
 
     const svg = d3.select('#conditions-chart')
@@ -192,7 +186,7 @@ function drawConditionsChart() {
         .attr('y', d => y(d.value))
         .attr('width', x1.bandwidth())
         .attr('height', d => height - y(d.value))
-        .attr('fill', d => scheme[d.result]) // Use scheme colors
+        .attr('fill', d => scheme[d.result]) 
         .attr('rx', 2)
         .attr('opacity', d => (!filters.medicalCondition || d.condition === filters.medicalCondition) ? 0.9 : 0.2)
         .style('cursor', 'pointer')
@@ -206,39 +200,35 @@ function drawConditionsChart() {
         })
         .on('click', (event, d) => setFilter('medicalCondition', d.condition));
 
-    /* =====================================================
-       📝 LEGEND: Normal, Abnormal, Inconclusive
-       ===================================================== */
-    // 2. Calculate horizontal centering and position at the bottom
-    const legendItemWidth = 100; // Approximate width of one legend item
+
+    const legendItemWidth = 100; 
     const totalLegendWidth = testResults.length * legendItemWidth;
     const legendStartX = (width - totalLegendWidth) / 2;
 
     const legendGroup = svg.append('g')
-        .attr('transform', `translate(${legendStartX}, ${height + 50})`); // Position below the x-axis
+        .attr('transform', `translate(${legendStartX}, ${height + 50})`);
 
     testResults.forEach((result, i) => {
         const item = legendGroup.append('g')
-            .attr('transform', `translate(${i * legendItemWidth}, 0)`) // Horizontal layout
+            .attr('transform', `translate(${i * legendItemWidth}, 0)`)
             .style('cursor', 'pointer');
-            // .on('click', () => setFilter('testResult', result)); 
 
         item.append('circle')
-            .attr('r', 5) // Slightly larger dots
+            .attr('r', 5) 
             .attr('fill', scheme[result]);
 
         item.append('text')
             .attr('x', 12)
             .attr('y', 4)
             .text(result)
-            .style('font-size', '12px') // Slightly larger text
+            .style('font-size', '12px') 
             .style('font-weight', '500')
             .style('fill', 'var(--text-secondary)')
             .attr('alignment-baseline', 'middle');
     });
 }
 
-// ===== 3️⃣ Billing Histogram (Color Vision Adaptive) =====
+// ===== Billing Histogram  =====
 function drawBillingChart() {
     const container = document.getElementById('billing-chart');
     if (!container) return; 
@@ -256,16 +246,10 @@ function drawBillingChart() {
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    // --- 🎨 COLOR VISION LOGIC ---
-    // Get the current scheme from the window global or the helper function
     const scheme = window.currentColorScheme || (typeof getColorScheme === 'function' ? getColorScheme() : null);
     
-    // We prefer a neutral color from the scheme. 
-    // Usually 'male' (often blueish) or 'Normal' (often greenish) works best as a primary chart color.
-    // If the scheme exists, use 'male' color, otherwise fallback to standard blue.
     const barColor = scheme ? (scheme.male || scheme.Normal) : '#0ea5e9';
 
-    // Safety check for empty data
     if (!filteredData || filteredData.length === 0) {
         g.append('text')
             .attr('x', width / 2)
@@ -299,7 +283,7 @@ function drawBillingChart() {
         .attr('class', 'grid')
         .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(''))
         .style('stroke-opacity', 0.1)
-        .style('stroke-dasharray', '3,3'); // Optional: makes grid dashed for better readability
+        .style('stroke-dasharray', '3,3'); 
 
     // --- Draw bars ---
     g.selectAll('rect')
@@ -310,11 +294,11 @@ function drawBillingChart() {
         .attr('y', d => y(d.length))
         .attr('width', d => Math.max(0, x(d.x1) - x(d.x0) - 2))
         .attr('height', d => height - y(d.length))
-        .attr('fill', barColor) // <--- Uses the dynamic color here
+        .attr('fill', barColor)
         .attr('rx', 2)
         .style('cursor', 'pointer')
         .on('mouseover', function(event, d) {
-            d3.select(this).attr('opacity', 0.7); // Darken slightly on hover
+            d3.select(this).attr('opacity', 0.7); 
             const range = `$${(d.x0/1000).toFixed(1)}k - $${(d.x1/1000).toFixed(1)}k`;
             if (typeof showTooltip === 'function') {
                 showTooltip(event, `<strong>${range}</strong><br/>Patients: ${d.length}`);
@@ -358,7 +342,7 @@ function drawBillingChart() {
 
 
 
-// ===== 4️⃣ Age Pyramid (Fixed Scales) =====
+// ===== Age Pyramid=====
 function drawPyramidChart() {
     const container = document.getElementById('pyramid-chart');
     if (!container) return;
@@ -391,25 +375,21 @@ function drawPyramidChart() {
     });
 
     const maxCount = d3.max(pyramidData, d => Math.max(d.male, d.female)) || 0;
-    const centerGap = 25; // Gap on each side of the center line
+    const centerGap = 25; 
 
     const y = d3.scaleBand()
         .domain(AGE_GROUPS)
         .range([0, height])
         .padding(0.2);
 
-    // --- 🔴 FIX: Adjust Ranges to Account for Gap ---
-    // Male Scale: 0 starts at (Center - Gap), Max extends to 0 (Left edge)
     const xMale = d3.scaleLinear()
         .domain([0, maxCount])
         .range([width / 2 - centerGap, 0]);
 
-    // Female Scale: 0 starts at (Center + Gap), Max extends to Width (Right edge)
     const xFemale = d3.scaleLinear()
         .domain([0, maxCount])
         .range([width / 2 + centerGap, width]);
 
-    // Center axis line
     svg.append('line')
         .attr('x1', width / 2)
         .attr('y1', 0)
@@ -418,7 +398,6 @@ function drawPyramidChart() {
         .attr('stroke', 'var(--border-color)')
         .attr('stroke-width', 2);
 
-    // Age labels (Centered)
     svg.selectAll('.age-label')
         .data(pyramidData)
         .enter()
@@ -434,18 +413,14 @@ function drawPyramidChart() {
 
     const minBarWidth = 4;
 
-    // --- Draw Male Bars (Left) ---
     svg.selectAll('.male-bar')
         .data(pyramidData)
         .enter()
         .append('rect')
         .attr('x', d => {
             if (d.male === 0) return width / 2 - centerGap; 
-            // Calculate natural width
             let barW = (width / 2 - centerGap) - xMale(d.male);
-            // Enforce minimum width
             barW = Math.max(barW, minBarWidth);
-            // Shift x position left by the calculated width
             return (width / 2 - centerGap) - barW;
         })
         .attr('y', d => y(d.ageGroup))
@@ -469,7 +444,6 @@ function drawPyramidChart() {
         })
         .on('click', (event, d) => setFilter('ageGroup', d.ageGroup));
 
-    // --- Draw Female Bars (Right) ---
     svg.selectAll('.female-bar')
         .data(pyramidData)
         .enter()
@@ -496,8 +470,6 @@ function drawPyramidChart() {
         })
         .on('click', (event, d) => setFilter('ageGroup', d.ageGroup));
 
-    // --- Labels (Counts) ---
-    // Male Labels
     svg.selectAll('.male-count')
         .data(pyramidData)
         .enter()
@@ -531,7 +503,6 @@ function drawPyramidChart() {
         .style('fill', 'var(--text-secondary)')
         .text(d => d.female ? d.female.toLocaleString() : '');
 
-    // --- Legend (Kept as is) ---
     const legendGroup = svg.append('g')
         .attr('transform', `translate(${width / 2}, ${height + 40})`);
 
@@ -550,7 +521,7 @@ function drawPyramidChart() {
     femaleLegend.append('text').attr('x', 10).attr('y', 4).text('Female').style('font-size', '12px').style('fill', 'var(--text-secondary)');
 }
 
-// ===== 5️⃣ Length of Stay vs Admission Type & Age Interval =====
+// ===== Length of Stay vs Admission Type & Age Interval =====
 function drawStayByAdmissionChart() {
     const container = document.getElementById('stay-admission-chart');
     container.innerHTML = '';
@@ -570,7 +541,6 @@ function drawStayByAdmissionChart() {
     const admissionTypes = [...new Set(filteredData.map(d => d.admissionType))];
     const ageGroups = AGE_GROUPS;
 
-    // Aggregate data: average LOS per admissionType & ageGroup
     const groupedData = admissionTypes.map(type => {
         const typeData = filteredData.filter(d => d.admissionType === type);
         const averages = {};
@@ -599,11 +569,8 @@ function drawStayByAdmissionChart() {
         .nice()
         .range([height, 0]);
 
-    // ---- UPDATED COLOR LOGIC ----
     const scheme = window.currentColorScheme || (typeof getColorScheme === 'function' ? getColorScheme() : COLORS);
-    
-    // Use the 'categorical' palette which guarantees distinct colors 
-    // for up to 10 items, avoiding collisions in color-blind modes.
+
     const ageGroupColors = ageGroups.map((age, i) => {
         return scheme.categorical[i % scheme.categorical.length];
     });
@@ -686,9 +653,7 @@ function drawAdmissionTrendsChart() {
         .append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    // --- 1. CRITICAL: Custom Data Filtering ---
-    // We filter allData manually here. We apply ALL filters (Hospital, Gender, etc.)
-    // EXCEPT 'admissionYear'. This ensures all year lines remain visible for comparison.
+
     const comparisonData = allData.filter(r => {
         if (filters.testResult && r.testResults !== filters.testResult) return false;
         if (filters.medicalCondition && r.medicalCondition !== filters.medicalCondition) return false;
@@ -696,11 +661,10 @@ function drawAdmissionTrendsChart() {
         if (filters.hospital && r.hospital !== filters.hospital) return false;
         if (filters.gender && r.gender !== filters.gender) return false;
         if (filters.bloodType && r.bloodType !== filters.bloodType) return false;
-        // Note: We deliberately SKIP the admissionYear check here
         return true;
     });
 
-    // --- 2. Data Grouping ---
+    // --- Data Grouping ---
     const yearlyData = d3.rollup(
         comparisonData,
         v => v.length,
@@ -714,7 +678,7 @@ function drawAdmissionTrendsChart() {
         return { year, values };
     }).sort((a, b) => a.year - b.year);
 
-    // --- 3. Scales ---
+    // --- Scales ---
     const x = d3.scaleLinear()
         .domain([0, 11]) 
         .range([0, width]);
@@ -732,10 +696,9 @@ function drawAdmissionTrendsChart() {
         .domain(parsedData.map(d => d.year))
         .range(colors);
 
-    // Check Active Filter (Convert to string to match your filter logic)
     const activeYear = filters.admissionYear ? String(filters.admissionYear) : null;
 
-    // --- 4. Axes ---
+    // --- Axes ---
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
     // Grid
@@ -761,14 +724,12 @@ function drawAdmissionTrendsChart() {
         .y(d => y(d.count))
         .curve(d3.curveMonotoneX);
 
-    // --- 5. Drawing Lines with Interaction ---
     const years = svg.selectAll('.year-group')
         .data(parsedData)
         .enter()
         .append('g')
         .attr('class', 'year-group');
 
-    // PATHS
     years.append('path')
         .attr('fill', 'none')
         .attr('stroke', d => colorScale(d.year))
@@ -776,19 +737,15 @@ function drawAdmissionTrendsChart() {
         .attr('d', d => line(d.values))
         .attr('opacity', d => (activeYear && String(d.year) !== activeYear) ? 0.15 : 0.85) // Dim inactive
         .style('cursor', 'pointer')
-        // INTERACTION: Click to filter
         .on('click', (event, d) => {
-            // Convert to string to match your setFilter expectation
             setFilter('admissionYear', String(d.year));
         });
 
-    // DOTS (Only show if no filter is active, OR if it matches the active filter)
     years.each(function(d) {
         const group = d3.select(this);
         const isSelected = activeYear && String(d.year) === activeYear;
         const isNoneSelected = !activeYear;
 
-        // Only draw dots for the relevant lines to keep UI clean
         if (isSelected || isNoneSelected) {
             group.selectAll('.dot')
                 .data(d.values.map(v => ({ ...v, year: d.year })))
@@ -818,7 +775,6 @@ function drawAdmissionTrendsChart() {
         }
     });
 
-    // --- 6. Interactive Legend ---
     const legend = svg.append('g')
         .attr('transform', `translate(${width + 15}, 0)`);
 
@@ -849,7 +805,7 @@ function drawAdmissionTrendsChart() {
     });
 }
 
-// ===== 7️⃣ Treemap: Gender → Blood Type → Medical Condition =====
+// ===== Treemap: Gender → Blood Type → Medical Condition =====
 function drawTreemapChart() {
     const container = document.getElementById('treemap-chart');
     if (!container) return;
@@ -866,7 +822,7 @@ function drawTreemapChart() {
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // 1️⃣ Data Preparation
+    // Data Preparation
     const groupedData = d3.groups(filteredData, d => d.gender, d => d.bloodType, d => d.medicalCondition);
     
     let allCounts = [];
@@ -881,12 +837,11 @@ function drawTreemapChart() {
     const minVal = d3.min(allCounts) || 1;
     const maxVal = d3.max(allCounts) || 1;
 
-    // 2️⃣ Improved Scale: sqrt exaggerates small differences
     const visualScale = d3.scaleSqrt()
         .domain([minVal, maxVal])
-        .range([10, 50]); // visual weight
+        .range([10, 50]); 
 
-    // 3️⃣ Build hierarchy
+    // Build hierarchy
     const hierarchyData = {
         name: 'Patients',
         children: groupedData.map(([gender, bloodGroups]) => ({
@@ -896,7 +851,7 @@ function drawTreemapChart() {
                 children: conditions.map(([condition, records]) => ({
                     name: condition,
                     realValue: records.length,
-                    value: visualScale(records.length) // Sqrt-scaled
+                    value: visualScale(records.length)
                 }))
             }))
         }))
@@ -906,7 +861,6 @@ function drawTreemapChart() {
         .sum(d => d.value)
         .sort((a, b) => b.value - a.value);
 
-    // 4️⃣ Layout
     d3.treemap()
         .size([width, height])
         .paddingInner(1)
@@ -915,14 +869,12 @@ function drawTreemapChart() {
         .tile(d3.treemapSquarify.ratio(1))
         (root);
 
-    // 5️⃣ Color Logic
     const scheme = window.currentColorScheme || { male: '#0ea5e9', female: '#ec4899' };
     const allBloodTypes = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'];
     const bloodTypeShade = d3.scalePoint()
         .domain(allBloodTypes)
         .range([0.95, 0.4]);
 
-    // 6️⃣ Draw Cells
     const nodes = svg.selectAll('g')
         .data(root.leaves())
         .enter()
@@ -967,7 +919,6 @@ function drawTreemapChart() {
             setFilter('medicalCondition', d.data.name);
         });
 
-    // 7️⃣ Labels
     nodes.append('text')
         .attr('x', 4)
         .attr('y', 12)
@@ -983,18 +934,15 @@ function drawTreemapChart() {
 
 
 
-// ===== 8️⃣ Billing by Year (Range Chart: Min to Max) =====
+// ===== Billing by Year (Range Chart: Min to Max) =====
 function drawBillingByYearStackedChart() {
     const container = d3.select('#billing-year-chart');
     container.selectAll('*').remove();
 
-    // ➤ 1. SMART DEFAULT LOGIC
-    // If no hospital is selected, pick a default one to show data immediately.
     let selectedHospital = filters.hospital;
     let isDefaultView = false;
 
     if (!selectedHospital) {
-        // Fallback to "Union Health" or the first available hospital in data
         if (allData && allData.length > 0) {
             const defaultHosp = allData.find(d => d.hospital === "Union Health");
             selectedHospital = defaultHosp ? "Union Health" : allData[0].hospital;
@@ -1004,9 +952,7 @@ function drawBillingByYearStackedChart() {
         }
     }
 
-    // Setup Dimensions (Increased top margin for the Note)
     const margin = { top: 40, right: 30, bottom: 40, left: 60 };
-    // Responsive width check
     const containerNode = document.getElementById('billing-year-chart');
     const containerWidth = containerNode ? containerNode.clientWidth : 800;
     const width = containerWidth - margin.left - margin.right;
@@ -1018,12 +964,11 @@ function drawBillingByYearStackedChart() {
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // ➤ 2. ADD THE NOTE (User Request)
     if (isDefaultView) {
         svg.append("text")
             .attr("x", 0)
-            .attr("y", -15) // Position above chart
-            .attr("fill", "#ef4444") // Red attention color
+            .attr("y", -15)
+            .attr("fill", "#ef4444") 
             .style("font-size", "11px")
             .style("font-style", "italic")
             .text(`* Default View: Showing "${selectedHospital}". Select a specific Hospital to change.`);
@@ -1037,8 +982,7 @@ function drawBillingByYearStackedChart() {
             .text(`Billing Range: ${selectedHospital}`);
     }
 
-    // ---- DATA PROCESSING ----
-    // Filter data for the specific hospital
+
     const hospitalData = filteredData.length > 0 ? filteredData : allData;
     
     const years = [...new Set(hospitalData
@@ -1078,43 +1022,37 @@ function drawBillingByYearStackedChart() {
 
     const overallMax = d3.max(dataByYear, d => d.max);
 
-    // ---- SCALES ----
     const x = d3.scaleBand()
         .domain(dataByYear.map(d => d.year))
         .range([0, width])
-        .padding(0.3); // Increased padding for cleaner look
+        .padding(0.3); 
 
     const y = d3.scaleLinear()
-        .domain([0, (overallMax || 0) * 1.15]) // Add 15% headroom for labels
+        .domain([0, (overallMax || 0) * 1.15]) 
         .nice()
         .range([height, 0]);
 
-    // ---- COLORS ----
-    // Use the categorical palette from global scheme
+
     const scheme = window.currentColorScheme || (typeof getColorScheme === 'function' ? getColorScheme() : null);
     const palette = (scheme && scheme.categorical) ? scheme.categorical : ['#3b82f6', '#93c5fd'];
     
-    // Distinct colors: Dark for base (Min), Lighter for spread (Range)
     const colorBase = palette[0];  
     const colorRange = palette[1] || '#93c5fd'; 
 
-    // ---- GRID ----
     svg.append('g')
         .attr('class', 'grid')
         .attr('opacity', 0.1)
         .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(''));
 
-    // ---- AXES ----
     svg.append('g')
         .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(x).tickSize(0).tickPadding(10))
-        .select(".domain").remove(); // Remove bottom line for cleaner look
+        .select(".domain").remove(); 
 
     svg.append('g')
         .call(d3.axisLeft(y).ticks(5).tickFormat(d => `$${(d / 1000).toFixed(0)}k`))
-        .select(".domain").remove(); // Remove left line
+        .select(".domain").remove();
 
-    // ---- BARS ----
     const barGroup = svg.selectAll('.year-group')
         .data(dataByYear)
         .enter()
@@ -1122,7 +1060,6 @@ function drawBillingByYearStackedChart() {
         .attr('class', 'year-group')
         .attr('transform', d => `translate(${x(d.year)},0)`);
 
-    // 1. Base Bar (Zero to Min) - The "Guaranteed" Cost
     barGroup.append('rect')
         .attr('class', 'bar-min')
         .attr('x', 0)
@@ -1144,13 +1081,12 @@ function drawBillingByYearStackedChart() {
         })
         .on('mouseout', function() { d3.select(this).attr('opacity', 0.9).attr('stroke', 'none'); hideTooltip(); });
 
-    // 2. Range Bar (Min to Max) - The "Variable" Cost
     barGroup.append('rect')
         .attr('class', 'bar-range')
         .attr('x', 0)
-        .attr('y', d => y(d.max)) // Starts at Max
+        .attr('y', d => y(d.max))
         .attr('width', x.bandwidth())
-        .attr('height', d => y(d.min) - y(d.max)) // Height is difference
+        .attr('height', d => y(d.min) - y(d.max))
         .attr('fill', colorRange)
         .attr('opacity', 0.8)
         .attr('rx', 2)
@@ -1166,9 +1102,7 @@ function drawBillingByYearStackedChart() {
         })
         .on('mouseout', function() { d3.select(this).attr('opacity', 0.8).attr('stroke', 'none'); hideTooltip(); });
 
-    // ---- ANNOTATIONS (Min/Max Labels on Bars) ----
-    
-    // Max Label (Top of bar)
+
     barGroup.append('text')
         .attr('x', x.bandwidth() / 2)
         .attr('y', d => y(d.max) - 5)
@@ -1178,14 +1112,13 @@ function drawBillingByYearStackedChart() {
         .attr('fill', 'var(--text-secondary)')
         .style('pointer-events', 'none');
 
-    // Min Label (Transition point, only if range is large enough)
     barGroup.append('text')
         .attr('x', x.bandwidth() / 2)
         .attr('y', d => y(d.min) + 12)
         .attr('text-anchor', 'middle')
         .text(d => (d.range > 5000) ? `$${(d.min/1000).toFixed(0)}k` : '') // Hide if cramped
         .attr('font-size', '10px')
-        .attr('fill', '#fff') // White text inside the dark bar
+        .attr('fill', '#fff') 
         .style('pointer-events', 'none');
 }
 
@@ -1194,10 +1127,8 @@ function drawArcDiagram() {
     const container = d3.select('#arc-diagram-chart');
     if (container.empty()) return;
 
-    // 1. Clear previous chart
     container.selectAll('*').remove();
     
-    // Safety check: ensure data exists
     if (!filteredData || filteredData.length === 0) {
         container.append('p')
             .style('text-align', 'center')
@@ -1207,18 +1138,14 @@ function drawArcDiagram() {
         return;
     }
 
-    // 2. Dimensions
     const margin = { top: 60, right: 120, bottom: 60, left: 120 };
     const width = container.node().getBoundingClientRect().width - margin.left - margin.right || 800;
     const height = 600 - margin.top - margin.bottom;
 
-    /* =====================================================
-       3. Data Processing & Frequency Calculation
-       ===================================================== */
+
     const diseaseFreq = d3.rollup(filteredData, v => v.length, d => d.medicalCondition);
     const medicationFreq = d3.rollup(filteredData, v => v.length, d => d.medication);
 
-    // Sort and get Top Items
     const diseases = Array.from(diseaseFreq.entries())
         .filter(([d]) => d && d !== 'Unknown')
         .sort((a, b) => b[1] - a[1])
@@ -1242,7 +1169,6 @@ function drawArcDiagram() {
         return;
     }
 
-    // Calculate Relationships (Links)
     const relationshipCounts = d3.rollup(
         filteredData.filter(d =>
             topDiseases.includes(d.medicalCondition) &&
@@ -1253,14 +1179,10 @@ function drawArcDiagram() {
         d => d.medication
     );
 
-    /* =====================================================
-       4. Scales & Axes
-       ===================================================== */
     const leftAxisX = 0; 
     const rightAxisX = width;
     const axisHeight = height;
 
-    // Y Position Scales
     const diseaseScale = d3.scalePoint()
         .domain(topDiseases)
         .range([0, axisHeight])
@@ -1271,7 +1193,6 @@ function drawArcDiagram() {
         .range([0, axisHeight])
         .padding(0.5);
 
-    // Node Size Scales (Sqrt for area)
     const diseaseSizeScale = d3.scaleSqrt()
         .domain([0, d3.max(topDiseases.map(d => diseaseFreq.get(d))) || 1])
         .range([5, 18]);
@@ -1280,12 +1201,8 @@ function drawArcDiagram() {
         .domain([0, d3.max(topMedications.map(m => medicationFreq.get(m))) || 1])
         .range([5, 18]);
 
-    /* =====================================================
-       5. Color Palettes
-       ===================================================== */
     const scheme = window.currentColorScheme || (typeof getColorScheme === 'function' ? getColorScheme() : {});
     
-    // Helper to cycle colors if items > palette size
     function getColorList(items, paletteSource) {
         const result = [];
         const basePalette = paletteSource || ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
@@ -1297,20 +1214,15 @@ function drawArcDiagram() {
 
     const fullPalette = scheme.categorical || ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
     
-    // Disease Colors
     const diseaseColorScale = d3.scaleOrdinal()
         .domain(topDiseases)
         .range(getColorList(topDiseases, fullPalette));
 
-    // Medication Colors (Reversed palette for distinction)
     const medicationPalette = [...fullPalette].reverse();
     const medicationColorScale = d3.scaleOrdinal()
         .domain(topMedications)
         .range(getColorList(topMedications, medicationPalette));
 
-    /* =====================================================
-       6. SVG Setup
-       ===================================================== */
     const svg = container.append('svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom);
@@ -1318,9 +1230,6 @@ function drawArcDiagram() {
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    /* =====================================================
-       7. Draw Links (Arcs)
-       ===================================================== */
     const links = [];
     topDiseases.forEach(disease => {
         topMedications.forEach(medication => {
@@ -1354,7 +1263,6 @@ function drawArcDiagram() {
         .attr('stroke-width', d => linkWidthScale(d.value))
         .attr('opacity', 0.3)
         .style('cursor', 'pointer')
-        // Hover Interaction
         .on('mouseover', function (event, d) {
             d3.select(this)
                 .transition().duration(200)
@@ -1375,12 +1283,8 @@ function drawArcDiagram() {
                 .attr('stroke-width', linkWidthScale(d.value));
             hideTooltip();
         })
-        // Click to Filter (Defaults to Medical Condition)
         .on('click', (event, d) => setFilter('medicalCondition', d.disease));
 
-    /* =====================================================
-       8. Draw Disease Nodes (Left)
-       ===================================================== */
     const diseaseNodes = g.selectAll('.disease-node')
         .data(topDiseases)
         .enter()
@@ -1389,7 +1293,6 @@ function drawArcDiagram() {
         .style('cursor', 'pointer')
         .on('click', (event, d) => setFilter('medicalCondition', d));
 
-    // Dots
     diseaseNodes.append('circle')
         .attr('r', d => diseaseSizeScale(diseaseFreq.get(d)))
         .attr('fill', d => diseaseColorScale(d))
@@ -1404,7 +1307,6 @@ function drawArcDiagram() {
             hideTooltip();
         });
 
-    // Labels
     diseaseNodes.append('text')
         .attr('x', -20)
         .attr('y', 5)
@@ -1414,19 +1316,14 @@ function drawArcDiagram() {
         .style('fill', 'var(--text-primary)')
         .style('font-weight', '500');
 
-    /* =====================================================
-       9. Draw Medication Nodes (Right) - [Interactive]
-       ===================================================== */
     const medicationNodes = g.selectAll('.medication-node')
         .data(topMedications)
         .enter()
         .append('g')
         .attr('transform', d => `translate(${rightAxisX},${medicationScale(d)})`)
         .style('cursor', 'pointer')
-        // CLICK TO FILTER BY MEDICATION
         .on('click', (event, d) => setFilter('medication', d));
 
-    // Dots
     medicationNodes.append('circle')
         .attr('r', d => medicationSizeScale(medicationFreq.get(d)))
         .attr('fill', d => medicationColorScale(d))
@@ -1441,7 +1338,6 @@ function drawArcDiagram() {
             hideTooltip();
         });
 
-    // Labels
     medicationNodes.append('text')
         .attr('x', 20)
         .attr('y', 5)
@@ -1463,14 +1359,12 @@ function drawInsuranceCostChart() {
          return;
     }
 
-    // 1. Dimensions adapted for side-by-side layout
     const containerWidth = container.clientWidth || 500; 
     const height = 320; 
     
     const margin = { top: 20, right: 60, bottom: 40, left: 130 };
     const width = containerWidth - margin.left - margin.right;
 
-    // 2. Data Processing
     const insuranceData = d3.rollup(
         filteredData,
         v => ({
@@ -1491,7 +1385,6 @@ function drawInsuranceCostChart() {
         }))
         .sort((a, b) => b.avgCost - a.avgCost);
 
-    // 3. Setup SVG
     const svg = d3.select('#insurance-cost-chart')
         .append('svg')
         .attr('width', width + margin.left + margin.right)
@@ -1502,7 +1395,6 @@ function drawInsuranceCostChart() {
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    // 4. Scales
     const x = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.avgCost) * 1.1]) 
         .range([0, width]);
@@ -1512,19 +1404,13 @@ function drawInsuranceCostChart() {
         .range([0, height])
         .padding(0.3);
 
-    // ==========================================
-    // 5. ACCESSIBILITY INTEGRATION
-    // ==========================================
-    // Get the current color scheme (Normal, Protanopia, etc.)
     const scheme = window.currentColorScheme || (typeof getColorScheme === 'function' ? getColorScheme() : { categorical: ['#2563eb'] });
     
-    // Use the 'categorical' palette defined in your module
-    // We map the data index to the palette index using modulo (%) to loop if needed
+ 
     const colorScale = d3.scaleOrdinal()
         .domain(data.map(d => d.provider))
         .range(data.map((_, i) => scheme.categorical[i % scheme.categorical.length]));
 
-    // 6. Grid Lines (Dashed & Subtle)
     const grid = g.append('g')
         .attr('class', 'grid')
         .attr('transform', `translate(0, ${height})`)
@@ -1539,7 +1425,6 @@ function drawInsuranceCostChart() {
         .attr('stroke-dasharray', '3,3'); 
     grid.select('.domain').remove();
 
-    // 7. Draw Bars
     g.selectAll('.bar')
         .data(data)
         .enter()
@@ -1549,7 +1434,7 @@ function drawInsuranceCostChart() {
         .attr('y', d => y(d.provider))
         .attr('width', d => x(d.avgCost))
         .attr('height', y.bandwidth())
-        .attr('fill', d => colorScale(d.provider)) // Uses the accessible color
+        .attr('fill', d => colorScale(d.provider))
         .attr('rx', 4) 
         .style('transition', 'all 0.2s ease')
         .on('mouseover', function(event, d) {
@@ -1567,7 +1452,6 @@ function drawInsuranceCostChart() {
             if (typeof hideTooltip === 'function') hideTooltip();
         });
 
-    // 8. Value Labels 
     g.selectAll('.label')
         .data(data)
         .enter()
@@ -1580,7 +1464,6 @@ function drawInsuranceCostChart() {
         .attr('font-weight', '600')
         .attr('fill', 'var(--text-secondary, #475569)');
 
-    // 9. Y Axis (Provider Names)
     const yAxis = g.append('g')
         .call(d3.axisLeft(y).tickSize(0));
 
@@ -1595,7 +1478,6 @@ function drawInsuranceCostChart() {
             return d.length > maxChars ? d.substring(0, maxChars) + '...' : d;
         });
 
-    // 10. X Axis Label
     g.append('g')
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(x).ticks(5).tickFormat(d => `$${d/1000}k`))
@@ -1610,250 +1492,6 @@ function drawInsuranceCostChart() {
 }
 
 
-// ===== Insurance Provider Performance: Bar + Line Chart =====
-function drawInsurancePerformanceChart() {
-    const container = document.getElementById('insurance-performance-chart');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    // Check for data
-    if (!filteredData || filteredData.length === 0) {
-        container.innerHTML = '<div class="no-data">No data available</div>';
-        return;
-    }
-    
-    // 1. Accessibility: Get Dynamic Colors
-    // Use accessible palette if available, otherwise fallback to the reference image colors (Teal & Maroon)
-    const scheme = typeof getColorScheme === 'function' ? getColorScheme() : { categorical: ['#0e7490', '#86198f'] };
-    const barColor = scheme.categorical[0]; 
-    const lineColor = scheme.categorical[1]; 
-    const textColor = 'var(--text-primary, #374151)';
-    const gridColor = 'var(--border-color, #e5e7eb)';
-
-    // 2. Setup Dimensions
-    const containerWidth = container.clientWidth || 900;
-    const height = 400; 
-    const margin = { top: 60, right: 80, bottom: 60, left: 80 };
-    const width = containerWidth - margin.left - margin.right;
-    
-    // 3. Data Processing
-    const insuranceData = d3.rollup(
-        filteredData,
-        v => ({
-            totalBilled: d3.sum(v, d => d.billingAmount),
-            patientCount: v.length,
-            avgCost: d3.mean(v, d => d.billingAmount)
-        }),
-        d => d.insuranceProvider
-    );
-    
-    const data = Array.from(insuranceData.entries())
-        .filter(([provider]) => provider !== 'Unknown' && provider.trim() !== '')
-        .map(([provider, stats]) => ({
-            provider,
-            totalBilled: stats.totalBilled || 0,
-            patientCount: stats.patientCount || 0,
-            avgCost: stats.avgCost || 0
-        }))
-        .sort((a, b) => b.totalBilled - a.totalBilled)
-        .slice(0, 5); // Keep top 5
-    
-    // 4. Create SVG
-    const svg = d3.select('#insurance-performance-chart')
-        .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-        .attr('preserveAspectRatio', 'xMidYMid meet');
-    
-    const g = svg.append('g')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`);
-    
-    // 5. Scales
-    const x = d3.scaleBand()
-        .domain(data.map(d => d.provider))
-        .range([0, width])
-        .padding(0.4); 
-    
-    // Y-Axis 1: Money (Bars) - Starts at 0
-    const yBilled = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.totalBilled) * 1.1])
-        .range([height, 0]);
-
-    // Y-Axis 2: Patients (Line) - "Zoomed In" Scale
-    // We calculate the exact min and max to tighten the view
-    const minP = d3.min(data, d => d.patientCount);
-    const maxP = d3.max(data, d => d.patientCount);
-    const rangeP = maxP - minP;
-    
-    // Add a dynamic buffer (20% of the range) so points don't touch the absolute top/bottom
-    // If range is 0 (all values same), default to +/- 5%
-    const buffer = rangeP === 0 ? minP * 0.05 : rangeP * 0.2;
-    
-    const yPatients = d3.scaleLinear()
-        .domain([minP - buffer, maxP + buffer])
-        .range([height, 0]);
-
-    // 6. Grid Lines (for Money axis)
-    g.append('g')
-        .attr('class', 'grid')
-        .call(d3.axisLeft(yBilled)
-            .ticks(5)
-            .tickSize(-width)
-            .tickFormat('')
-        )
-        .selectAll('line')
-        .attr('stroke', gridColor)
-        .attr('stroke-dasharray', '0');
-    
-    g.select('.domain').remove();
-
-    // 7. Bars (Billed Amounts)
-    g.selectAll('.bar')
-        .data(data)
-        .enter()
-        .append('rect')
-        .attr('class', 'bar')
-        .attr('x', d => x(d.provider))
-        .attr('y', d => yBilled(d.totalBilled))
-        .attr('width', x.bandwidth())
-        .attr('height', d => height - yBilled(d.totalBilled))
-        .attr('fill', barColor)
-        .attr('rx', 0)
-        .style('transition', 'opacity 0.2s')
-        // INTERACTIVITY: Tooltip for Bars
-        .on('mouseover', function(event, d) {
-            d3.select(this).attr('opacity', 0.8);
-            if (typeof showTooltip === 'function') {
-                showTooltip(event, 
-                    `<strong>${d.provider}</strong><br/>
-                    Total Billed: $${(d.totalBilled/1000000).toFixed(2)}M<br/>
-                    Avg Cost: $${Math.round(d.avgCost).toLocaleString()}`
-                );
-            }
-        })
-        .on('mouseout', function() {
-            d3.select(this).attr('opacity', 1);
-            if (typeof hideTooltip === 'function') hideTooltip();
-        });
-
-    // 8. Line Path (Patient Count)
-    const lineGenerator = d3.line()
-        .x(d => x(d.provider) + x.bandwidth() / 2)
-        .y(d => yPatients(d.patientCount))
-        .curve(d3.curveMonotoneX); // Add slight curve for smoothness
-
-    g.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', lineColor)
-        .attr('stroke-width', 2.5) // Slightly thicker line
-        .attr('d', lineGenerator);
-
-    // 9. Line Points (Interactivity)
-    g.selectAll('.dot')
-        .data(data)
-        .enter()
-        .append('circle')
-        .attr('cx', d => x(d.provider) + x.bandwidth() / 2)
-        .attr('cy', d => yPatients(d.patientCount))
-        .attr('r', 5)
-        .attr('fill', lineColor)
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 2)
-        .style('cursor', 'pointer')
-        // INTERACTIVITY: Tooltip for Line Points
-        .on('mouseover', function(event, d) {
-            d3.select(this).attr('r', 8).attr('stroke-width', 3);
-            if (typeof showTooltip === 'function') {
-                showTooltip(event, 
-                    `<strong>${d.provider}</strong><br/>
-                    Patient Count: ${d.patientCount.toLocaleString()}<br/>
-                    (Line Data)`
-                );
-            }
-        })
-        .on('mouseout', function() {
-            d3.select(this).attr('r', 5).attr('stroke-width', 2);
-            if (typeof hideTooltip === 'function') hideTooltip();
-        });
-
-    // 10. Floating Labels
-    // Inside Bars (Money)
-    g.selectAll('.label-money')
-        .data(data)
-        .enter()
-        .append('text')
-        .attr('x', d => x(d.provider) + x.bandwidth() / 2)
-        .attr('y', d => yBilled(d.totalBilled) + 20)
-        .attr('text-anchor', 'middle')
-        .attr('fill', 'rgba(255,255,255,0.9)')
-        .attr('font-size', '10px')
-        .style('pointer-events', 'none')
-        .text(d => `$${(d.totalBilled / 1000000).toFixed(1)}M`);
-
-    // Above Line Points (Patients)
-    g.selectAll('.label-patients')
-        .data(data)
-        .enter()
-        .append('text')
-        .attr('x', d => x(d.provider) + x.bandwidth() / 2)
-        .attr('y', d => yPatients(d.patientCount) - 12)
-        .attr('text-anchor', 'middle')
-        .attr('fill', lineColor)
-        .attr('font-size', '11px')
-        .attr('font-weight', 'bold')
-        .style('pointer-events', 'none')
-        .text(d => `${(d.patientCount / 1000).toFixed(1)}k`);
-
-    // 11. Axes
-    // X Axis
-    g.append('g')
-        .attr('transform', `translate(0, ${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll('text')
-        .attr('transform', 'rotate(-30)')
-        .style('text-anchor', 'end')
-        .style('font-size', '12px')
-        .style('fill', 'var(--text-secondary, #4b5563)');
-
-    // Y Axis Left (Money)
-    g.append('g')
-        .call(d3.axisLeft(yBilled).ticks(5).tickFormat(d => `${d/1000000}M`))
-        .select('.domain').remove();
-
-    // Y Axis Right (Patients)
-    g.append('g')
-        .attr('transform', `translate(${width}, 0)`)
-        .call(d3.axisRight(yPatients).ticks(5).tickFormat(d => `${d/1000}k`))
-        .select('.domain').remove();
-        
-    // Label for Right Axis
-    g.append('text')
-        .attr('transform', 'rotate(90)')
-        .attr('y', -width - 45) // Adjust based on margin
-        .attr('x', height / 2)
-        .attr('dy', '1em')
-        .style('text-anchor', 'middle')
-        .style('fill', lineColor)
-        .style('font-size', '11px')
-        .text('Total billed patients');
-
-    // 12. Legend
-    const legend = svg.append('g')
-        .attr('transform', `translate(${margin.left}, 20)`);
-    
-    // Legend Item 1: Billed amounts
-    legend.append('rect').attr('x', 0).attr('y', 0).attr('width', 12).attr('height', 12).attr('fill', barColor);
-    legend.append('text').attr('x', 18).attr('y', 10).text('Billed amounts').style('font-size', '13px').style('fill', textColor);
-    
-    // Legend Item 2: Total billed patients
-    const legend2X = 140;
-    legend.append('line').attr('x1', legend2X).attr('x2', legend2X + 20).attr('y1', 6).attr('y2', 6).attr('stroke', lineColor).attr('stroke-width', 2);
-    legend.append('circle').attr('cx', legend2X + 10).attr('cy', 6).attr('r', 3).attr('fill', lineColor);
-    legend.append('text').attr('x', legend2X + 25).attr('y', 10).text('Total billed patients').style('font-size', '13px').style('fill', textColor);
-}
 
 // ===== Insurance Provider Performance: Bar + Line Chart =====
 function drawInsurancePerformanceChart() {
@@ -1862,7 +1500,6 @@ function drawInsurancePerformanceChart() {
     
     container.innerHTML = '';
     
-    // Check for data
     if (!filteredData || filteredData.length === 0) {
         container.innerHTML = '<div class="no-data">No data available</div>';
         return;
@@ -1901,7 +1538,7 @@ function drawInsurancePerformanceChart() {
             avgCost: stats.avgCost || 0
         }))
         .sort((a, b) => b.totalBilled - a.totalBilled)
-        .slice(0, 5); // Keep top 5
+        .slice(0, 5); 
     
     // 4. Create SVG
     const svg = d3.select('#insurance-performance-chart')
@@ -1919,19 +1556,16 @@ function drawInsurancePerformanceChart() {
         .domain(data.map(d => d.provider))
         .range([0, width])
         .padding(0.4); 
-    
-    // Y-Axis 1: Money (Bars) - "Zoomed In" Scale
-    // Calculate min/max to adjust the scale, making differences more visible
+
     const minBilled = d3.min(data, d => d.totalBilled);
     const maxBilled = d3.max(data, d => d.totalBilled);
     const rangeBilled = maxBilled - minBilled;
-    const bufferBilled = rangeBilled === 0 ? minBilled * 0.02 : rangeBilled * 0.1; // Add a small buffer
+    const bufferBilled = rangeBilled === 0 ? minBilled * 0.02 : rangeBilled * 0.1; 
 
     const yBilled = d3.scaleLinear()
         .domain([minBilled - bufferBilled, maxBilled + bufferBilled])
         .range([height, 0]);
 
-    // Y-Axis 2: Patients (Line) - "Zoomed In" Scale
     const minP = d3.min(data, d => d.patientCount);
     const maxP = d3.max(data, d => d.patientCount);
     const rangeP = maxP - minP;
@@ -1941,7 +1575,7 @@ function drawInsurancePerformanceChart() {
         .domain([minP - bufferP, maxP + bufferP])
         .range([height, 0]);
 
-    // 6. Grid Lines (for Money axis)
+    // 6. Grid Lines 
     g.append('g')
         .attr('class', 'grid')
         .call(d3.axisLeft(yBilled)
@@ -1955,7 +1589,7 @@ function drawInsurancePerformanceChart() {
     
     g.select('.domain').remove();
 
-    // 7. Bars (Billed Amounts)
+    // 7. Bars 
     g.selectAll('.bar')
         .data(data)
         .enter()
@@ -1964,12 +1598,10 @@ function drawInsurancePerformanceChart() {
         .attr('x', d => x(d.provider))
         .attr('y', d => yBilled(d.totalBilled))
         .attr('width', x.bandwidth())
-        // Ensure height is not negative if yBilled returns a value > height
         .attr('height', d => Math.max(0, height - yBilled(d.totalBilled)))
         .attr('fill', barColor)
         .attr('rx', 0)
         .style('transition', 'opacity 0.2s')
-        // INTERACTIVITY: Tooltip for Bars
         .on('mouseover', function(event, d) {
             d3.select(this).attr('opacity', 0.8);
             if (typeof showTooltip === 'function') {
@@ -1985,7 +1617,7 @@ function drawInsurancePerformanceChart() {
             if (typeof hideTooltip === 'function') hideTooltip();
         });
 
-    // 8. Line Path (Patient Count)
+    // 8. Line Path 
     const lineGenerator = d3.line()
         .x(d => x(d.provider) + x.bandwidth() / 2)
         .y(d => yPatients(d.patientCount))
@@ -1998,7 +1630,7 @@ function drawInsurancePerformanceChart() {
         .attr('stroke-width', 2.5)
         .attr('d', lineGenerator);
 
-    // 9. Line Points (Interactivity)
+    // 9. Line Points 
     g.selectAll('.dot')
         .data(data)
         .enter()
@@ -2010,7 +1642,6 @@ function drawInsurancePerformanceChart() {
         .attr('stroke', '#fff')
         .attr('stroke-width', 2)
         .style('cursor', 'pointer')
-        // INTERACTIVITY: Tooltip for Line Points
         .on('mouseover', function(event, d) {
             d3.select(this).attr('r', 8).attr('stroke-width', 3);
             if (typeof showTooltip === 'function') {
@@ -2027,7 +1658,6 @@ function drawInsurancePerformanceChart() {
         });
 
     // 10. Floating Labels
-    // Above Line Points (Patients) - REMOVED Bar labels
     g.selectAll('.label-patients')
         .data(data)
         .enter()
@@ -2042,7 +1672,6 @@ function drawInsurancePerformanceChart() {
         .text(d => `${(d.patientCount / 1000).toFixed(1)}k`);
 
     // 11. Axes
-    // X Axis
     g.append('g')
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(x))
@@ -2052,18 +1681,15 @@ function drawInsurancePerformanceChart() {
         .style('font-size', '12px')
         .style('fill', 'var(--text-secondary, #4b5563)');
 
-    // Y Axis Left (Money)
     g.append('g')
         .call(d3.axisLeft(yBilled).ticks(5).tickFormat(d => `${(d/1000000).toFixed(1)}M`))
         .select('.domain').remove();
 
-    // Y Axis Right (Patients)
     g.append('g')
         .attr('transform', `translate(${width}, 0)`)
         .call(d3.axisRight(yPatients).ticks(5).tickFormat(d => `${d/1000}k`))
         .select('.domain').remove();
         
-    // Label for Right Axis
     g.append('text')
         .attr('transform', 'rotate(90)')
         .attr('y', -width - 45)
@@ -2078,18 +1704,16 @@ function drawInsurancePerformanceChart() {
     const legend = svg.append('g')
         .attr('transform', `translate(${margin.left}, 20)`);
     
-    // Legend Item 1: Billed amounts
     legend.append('rect').attr('x', 0).attr('y', 0).attr('width', 12).attr('height', 12).attr('fill', barColor);
     legend.append('text').attr('x', 18).attr('y', 10).text('Billed amounts').style('font-size', '13px').style('fill', textColor);
     
-    // Legend Item 2: Total billed patients
     const legend2X = 140;
     legend.append('line').attr('x1', legend2X).attr('x2', legend2X + 20).attr('y1', 6).attr('y2', 6).attr('stroke', lineColor).attr('stroke-width', 2);
     legend.append('circle').attr('cx', legend2X + 10).attr('cy', 6).attr('r', 3).attr('fill', lineColor);
     legend.append('text').attr('x', legend2X + 25).attr('y', 10).text('Total billed patients').style('font-size', '13px').style('fill', textColor);
 }
 
-// ===== 6️⃣ Blood Type Distribution (Vision-Accessible + Consistent Tooltip) =====
+// ===== Blood Type Distribution=====
 function drawBloodTypeChart() {
     const container = document.getElementById('blood-type-chart');
     if (!container) return;
@@ -2131,12 +1755,12 @@ function drawBloodTypeChart() {
     // Ensure colors map consistently to types
     const colorScale = d3.scaleOrdinal()
         .domain(bloodTypes) 
-        .range(categorical); // Maps colors in order
+        .range(categorical); 
 
     // --- Generators ---
     const pie = d3.pie().value(d => d.count).sort(null);
     const arc = d3.arc().innerRadius(0).outerRadius(radius - 10);
-    const hoverArc = d3.arc().innerRadius(0).outerRadius(radius); // Pop effect
+    const hoverArc = d3.arc().innerRadius(0).outerRadius(radius); 
 
     // --- Draw Slices ---
     svg.selectAll('path')
@@ -2145,30 +1769,23 @@ function drawBloodTypeChart() {
         .append('path')
         .attr('d', arc)
         .attr('fill', d => colorScale(d.data.type))
-        .attr('stroke', scheme === 'achromatopsia' ? '#000' : '#fff') // Black border for mono, white otherwise
+        .attr('stroke', scheme === 'achromatopsia' ? '#000' : '#fff') 
         .attr('stroke-width', 2)
         .attr('opacity', 0.9)
         .style('cursor', 'pointer')
-        // --- 1. MOUSEOVER: Use global showTooltip ---
         .on('mouseover', function(event, d) {
-            // Animation
             d3.select(this).transition().duration(200).attr('d', hoverArc).attr('opacity', 1);
             
-            // Calculate Percentage
             const percent = ((d.data.count / filteredData.length) * 100).toFixed(1);
             
-            // Call the shared tooltip function (Matches Donut Chart style)
-            // You can use HTML here if your showTooltip supports it, or plain text
             showTooltip(event, `Type ${d.data.type}: ${d.data.count} (${percent}%)`);
         })
-        // --- 2. MOUSEOUT: Use global hideTooltip ---
         .on('mouseout', function() {
             d3.select(this).transition().duration(200).attr('d', arc).attr('opacity', 0.9);
             hideTooltip();
         })
         .on('click', (event, d) => setFilter('bloodType', d.data.type));
 
-    // --- Legend ---
     const legendY = radius + 30;
     const legendItemWidth = 60;
     const itemsPerRow = Math.floor(width / legendItemWidth);
@@ -2202,10 +1819,10 @@ function drawDiseaseTrendsChart() {
     if (!container) return;
     container.innerHTML = '';
 
-    // 1️⃣ Get current vision-friendly color scheme
+    // 1️ Get current vision-friendly color scheme
     const scheme = window.currentColorScheme || (typeof getColorScheme === 'function' ? getColorScheme() : { categorical: [] });
 
-    // 2️⃣ Setup dimensions
+    // 2️ Setup dimensions
     const margin = { top: 20, right: 140, bottom: 40, left: 50 }; // Increased left margin for Y-axis visibility
     const width = container.clientWidth - margin.left - margin.right;
     const height = 350 - margin.top - margin.bottom;
@@ -2215,22 +1832,20 @@ function drawDiseaseTrendsChart() {
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom);
 
-    // ➤ INTERACTIVITY: Background Click to Clear Filter
-    // We add this rect BEHIND everything else to catch clicks on empty space
+
     svg.append('rect')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .attr('fill', 'transparent')
         .style('cursor', 'default')
         .on('click', () => {
-            // Clear the medical condition filter when clicking empty space
             if (typeof setFilter === 'function') setFilter('medicalCondition', null);
         });
 
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // 3️⃣ Process data
+    // 3️ Process data
     const validRecords = filteredData.filter(d => d.dateOfAdmission);
     if (validRecords.length === 0) {
         g.append('text').attr('x', width / 2).attr('y', height / 2).text('No data available');
@@ -2244,7 +1859,7 @@ function drawDiseaseTrendsChart() {
 
     const conditions = [...new Set(validRecords.map(d => d.medicalCondition))].sort();
 
-    // 4️⃣ Dynamic Color Assignment
+    // 4️ Dynamic Color Assignment
     const palette = scheme.categorical && scheme.categorical.length > 0 
         ? scheme.categorical 
         : ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
@@ -2254,7 +1869,7 @@ function drawDiseaseTrendsChart() {
         conditionColors[cond] = palette[i % palette.length];
     });
 
-    // 5️⃣ Prepare series data
+    // 5️ Prepare series data
     const seriesData = conditions.map(condition => {
         const conditionRecords = validRecords.filter(d => d.medicalCondition === condition);
         const values = allYears.map(year => ({
@@ -2265,15 +1880,13 @@ function drawDiseaseTrendsChart() {
         return { name: condition, values };
     });
 
-    // 6️⃣ Scales
+    // 6️ Scales
     const xScale = d3.scaleLinear().domain([minYear, maxYear]).range([0, width]);
 
-    // Calculate Zoomed Y-Scale
     const allCounts = seriesData.flatMap(s => s.values.map(d => d.count));
     const yMin = d3.min(allCounts) || 0;
     const yMax = d3.max(allCounts) || 10;
     
-    // Add 10% buffer
     const range = yMax - yMin;
     const buffer = range === 0 ? (yMin * 0.1 || 1) : range * 0.1;
 
@@ -2281,25 +1894,21 @@ function drawDiseaseTrendsChart() {
         .domain([Math.max(0, yMin - buffer), yMax + buffer]) 
         .range([height, 0]);
 
-    // 7️⃣ Axes (Explicitly drawing the Y Axis Line)
+    // 7️ Axes (Explicitly drawing the Y Axis Line)
     
-    // X-Axis
     g.append('g')
         .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(xScale).ticks(allYears.length).tickFormat(d3.format('d')))
         .attr('font-size', '11px')
         .attr('color', 'var(--text-secondary)');
 
-    // Y-Axis
     const yAxisGroup = g.append('g')
         .call(d3.axisLeft(yScale).ticks(5));
 
-    // ➤ VISUAL: Style the Y-Axis
     yAxisGroup.selectAll('text').attr('fill', 'var(--text-secondary)');
     yAxisGroup.selectAll('line').attr('stroke', 'var(--border-color)'); // Ticks
     yAxisGroup.select('.domain').attr('stroke', 'var(--border-color)').attr('stroke-width', 1); // Main Axis Line
 
-    // Optional: Add horizontal grid lines for readability
     g.append('g')
         .attr('class', 'grid')
         .call(d3.axisLeft(yScale).ticks(5).tickSize(-width).tickFormat(''))
@@ -2326,22 +1935,21 @@ function drawDiseaseTrendsChart() {
         .append('g')
         .attr('class', 'line-group');
 
-    // ➤ INTERACTIVITY: Path Click
     lines.append('path')
         .attr('d', d => lineGenerator(d.values))
         .attr('fill', 'none')
         .attr('stroke', d => conditionColors[d.name]) 
-        .attr('stroke-width', 3) // Thicker for easier clicking
+        .attr('stroke-width', 3) 
         .attr('opacity', 0.9)
         .style('cursor', 'pointer')
         .on('mouseover', function() { d3.select(this).attr('stroke-width', 5); })
         .on('mouseout', function() { d3.select(this).attr('stroke-width', 3); })
         .on('click', (event, d) => {
-            event.stopPropagation(); // Stop click from hitting the background
+            event.stopPropagation(); 
             if (typeof setFilter === 'function') setFilter('medicalCondition', d.name);
         });
 
-    // 9️⃣ Draw dots
+    // 9️ Draw dots
     lines.selectAll('circle')
         .data(d => d.values)
         .enter()
@@ -2368,7 +1976,7 @@ function drawDiseaseTrendsChart() {
             if (typeof setFilter === 'function') setFilter('medicalCondition', d.condition);
         });
 
-    // 🔟 Legend
+    //  Legend
     const legend = svg.append('g').attr('transform', `translate(${width + margin.left + 10}, ${margin.top})`);
 
     conditions.forEach((condition, i) => {
@@ -2436,22 +2044,18 @@ function drawLosBoxPlot() {
         })
         .sort((a, b) => b.median - a.median);
 
-    // 3. SCALES (Zoomed In)
+    // 3. SCALES
     const x = d3.scaleBand()
         .domain(dataByCondition.map(d => d.key))
         .range([0, width])
         .padding(0.4);
 
-    // ➤ MAGNIFICATION FIX:
-    // Calculate the absolute min and max across all visible box data (including whiskers)
+
     const globalMin = d3.min(dataByCondition, d => d.min) || 0;
     const globalMax = d3.max(dataByCondition, d => d.max) || 30;
     
-    // Add 10% padding so the boxes don't touch the top/bottom edges
     const yPadding = (globalMax - globalMin) * 0.10; 
 
-    // Define Scale Domain: [min - padding, max + padding]
-    // This zooms in on the relevant area instead of starting at 0
     const y = d3.scaleLinear()
         .domain([Math.max(0, globalMin - yPadding), globalMax + yPadding]) 
         .range([height, 0]);
@@ -2482,7 +2086,7 @@ function drawLosBoxPlot() {
         .attr('fill', 'var(--text-secondary)');
 
     svg.append('g')
-        .call(d3.axisLeft(y).ticks(5)) // Ticks will now adapt to the zoomed range
+        .call(d3.axisLeft(y).ticks(5)) 
         .select('.domain').remove();
     
     // Y Label
@@ -2628,7 +2232,6 @@ function drawSeasonalityChart() {
         }
     });
 
-    // ➤ NORMALIZATION: Relative to Row (0.0 - 1.0)
     conditions.forEach(cond => {
         const rowValues = matrix.filter(d => d.condition === cond).map(d => d.value);
         const min = Math.min(...rowValues);
@@ -2651,22 +2254,15 @@ function drawSeasonalityChart() {
         .domain(conditions)
         .padding(0.15);
 
-    /* =================================================================
-       4. ACCESSIBLE COLOR LOGIC
-       We pick the Primary Color from the active vision scheme.
-       (e.g., Red for Tritanopia, Blue for Protanopia, Gray for Achromatopsia)
-    ================================================================= */
+
     const scheme = window.currentColorScheme || (typeof getColorScheme === 'function' ? getColorScheme() : { categorical: ['#22c55e'] });
     
-    // Use the first color in the categorical list as the "Max Intensity"
     const baseColor = scheme.categorical && scheme.categorical.length > 0 
         ? scheme.categorical[0] 
-        : '#22c55e'; // Default fallback
+        : '#22c55e'; 
 
-    // Lightest color is always a neutral gray to ensure contrast against ANY baseColor
     const lowColor = '#ebedf0'; 
 
-    // Create discrete buckets from Neutral -> BaseColor
     const colorRange = [
         lowColor,                                     // Level 0 (Empty)
         d3.interpolateRgb(lowColor, baseColor)(0.3),  // Level 1
@@ -2765,7 +2361,6 @@ function drawParallelCoordinatesChart() {
 
     if (!container) return;
 
-    // Safety: Check width to prevent crash in hidden tabs
     const rect = container.getBoundingClientRect();
     const width = rect.width;
     const height = 400; 
@@ -2817,7 +2412,6 @@ function drawParallelCoordinatesChart() {
         { name: 'testResults', label: 'Outcome' }
     ];
 
-    // Map chart axes to global filter keys
     const filterKeys = {
         'ageGroup': 'ageGroup',
         'admissionType': 'admissionType',
@@ -2867,7 +2461,7 @@ function drawParallelCoordinatesChart() {
         return scheme.Inconclusive || '#ccc';
     };
 
-    // 5. Draw Lines (Stable Update)
+    // 5. Draw Lines 
     const pathGenerator = d3.line()
         .x((d, i) => x(dimensions[i].name))
         .y((d, i) => yScales[dimensions[i].name](d))
@@ -2879,7 +2473,6 @@ function drawParallelCoordinatesChart() {
     const pathsEnter = paths.enter().append('path').attr('class', 'flow')
         .style('fill', 'none')
         .style('mix-blend-mode', 'multiply')
-        // ➤ CHANGED: 'crosshair' to 'pointer' (Hand icon)
         .style('cursor', 'pointer'); 
 
     paths.merge(pathsEnter)
@@ -2889,27 +2482,26 @@ function drawParallelCoordinatesChart() {
         .style('opacity', d => opacityScale(d.count))
         .on('mouseover', function(event, d) {
             d3.selectAll('.flow').style('opacity', 0.05);
-            d3.select(this).style('stroke', '#333').style('opacity', 1)
+            d3.select(this).style('stroke', '#ffffff').style('opacity', 1)
                 .style('stroke-width', strokeWidthScale(d.count) + 2).raise();
             
             if (typeof showTooltip === 'function') {
                 const percentage = ((d.count / totalPatients) * 100).toFixed(1);
                 
-                // Detailed Tooltip
                 showTooltip(event, `
                     <div style="font-family:sans-serif; min-width:180px;">
-                        <div style="border-bottom:1px solid #ccc; margin-bottom:6px; padding-bottom:4px;">
-                            <strong style="font-size:13px;">👥 Patient Group</strong>
+                        <div style="border-bottom:1px solid #ffffff; margin-bottom:6px; padding-bottom:4px;">
+                            <strong style="font-size:13px; ">Patient Group</strong>
                         </div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px;">
                             <span>Count:</span> 
                             <strong>${d.count} (${percentage}%)</strong>
                         </div>
                         <div style="display:grid; grid-template-columns: 70px auto; gap:4px; font-size:12px;">
-                            <span style="color:#666;">Age:</span> <strong>${d.ageGroup}</strong>
-                            <span style="color:#666;">Admission:</span> <strong>${d.admissionType}</strong>
-                            <span style="color:#666;">Condition:</span> <strong>${d.medicalCondition}</strong>
-                            <span style="color:#666;">Outcome:</span> <strong style="color:${colorScale(d)}">${d.testResults}</strong>
+                            <span style="color:#fff;">Age:</span> <strong>${d.ageGroup}</strong>
+                            <span style="color:#fff;">Admission:</span> <strong>${d.admissionType}</strong>
+                            <span style="color:#fff;">Condition:</span> <strong>${d.medicalCondition}</strong>
+                            <span style="color:#fff;">Outcome:</span> <strong style="color:${colorScale(d)}">${d.testResults}</strong>
                         </div>
                     </div>
                 `);
@@ -2923,7 +2515,7 @@ function drawParallelCoordinatesChart() {
             if (typeof hideTooltip === 'function') hideTooltip();
         });
 
-    // 6. Update Axes (With Filter Mapping)
+    // 6. Update Axes
     const axisGroups = g.select('.layer-axes').selectAll('.axis-group').data(dimensions);
     axisGroups.exit().remove();
     const axisEnter = axisGroups.enter().append('g').attr('class', 'axis-group');
@@ -2934,14 +2526,12 @@ function drawParallelCoordinatesChart() {
             d3.select(this).call(d3.axisLeft(yScales[dim.name]));
             d3.select(this).selectAll('.domain').style('stroke', 'var(--text-primary)').style('stroke-width', 2);
             
-            // Label with Halo
             const label = d3.select(this).selectAll('.axis-label').data([dim]);
             label.enter().append('text').attr('class', 'axis-label').merge(label)
                 .attr('y', -15).style('text-anchor', 'middle')
                 .text(d => d.label).style('font-weight', 'bold').style('fill', 'var(--text-primary)')
                 .style("text-shadow", "0px 1px 2px rgba(255,255,255,0.8)");
 
-            // Ticks with Interaction
             d3.select(this).selectAll('.tick text')
                 .style('fill', 'var(--text-primary)')
                 .style('font-weight', '600')
@@ -2950,7 +2540,6 @@ function drawParallelCoordinatesChart() {
                 .on('mouseover', function() { d3.select(this).style('fill', '#000').style('font-size', '12px'); })
                 .on('mouseout', function() { d3.select(this).style('fill', 'var(--text-primary)').style('font-size', '11px'); })
                 .on('click', (event, textValue) => {
-                    // Use the mapped key (e.g. 'testResult' instead of 'testResults')
                     const filterKey = filterKeys[dim.name]; 
                     if(typeof setFilter === 'function') setFilter(filterKey, textValue);
                 });

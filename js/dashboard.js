@@ -38,9 +38,7 @@ function clearAllFilters() {
     applyFilters();
 }
 
-// ---------------------------------------------------------
-// 2. NEW: Function to Populate Dropdowns (Call this after data loads!)
-// ---------------------------------------------------------
+
 function populateDropdowns() {
     // 1. Populate Medical Conditions
     const conditionSelect = document.getElementById('condition-select');
@@ -68,7 +66,7 @@ function populateDropdowns() {
         });
     }
 
-    // 3. Populate Medications (THIS WAS MISSING)
+    // 3. Populate Medications 
     const medSelect = document.getElementById('medication-select');
     if (medSelect) {
         // Extract unique medications, remove blanks/Unknowns/Nones, and sort
@@ -190,7 +188,7 @@ function updateFilterUI() {
         conditionSelect.value = filters.medicalCondition || '';
     }
     
-    // 3. Update Medication Select (THIS WAS MISSING)
+    // 3. Update Medication Select 
     const medSelect = document.getElementById('medication-select');
     if (medSelect) {
         medSelect.value = filters.medication || '';
@@ -391,7 +389,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.classList.add('sidebar-collapsed');
             }
         }
-        // Ensure UI reflects any saved filter state and collapsed state on load
         if (typeof updateFilterUI === 'function') updateFilterUI();
         if (document.body.classList.contains('sidebar-collapsed')) {
             document.querySelectorAll('.filter-section').forEach(sec => {

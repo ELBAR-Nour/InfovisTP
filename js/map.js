@@ -1,4 +1,3 @@
-// ===== map.js =====
 require([
   "esri/Map",
   "esri/views/MapView",
@@ -27,7 +26,7 @@ require([
   map.add(hospitalsLayer);
 
   // ============================================================
-  // LEGEND LOGIC (Moved up so it can be called immediately)
+  // LEGEND LOGIC 
   // ============================================================
   window.updateMapLegend = function() {
     const legendDiv = document.getElementById('map-legend');
@@ -54,12 +53,10 @@ require([
     }
   };
 
-  // Create the container and add it to the UI
   const legendDiv = document.createElement('div');
   legendDiv.id = 'map-legend';
   view.ui.add(legendDiv, 'top-right');
 
-  // ➤ FIX: Call this immediately so it appears on load
   window.updateMapLegend(); 
 
   // ============================================================
@@ -76,7 +73,6 @@ require([
     }, 200);
   });
 
-  // ... (Keep your existing interaction logic: pointer-move, click, popup-watch) ...
 
   let isPopupPinned = false;
 
@@ -148,7 +144,6 @@ require([
     renderCounter++;
     await drawHospitals(renderCounter);
     
-    // Also update legend here in case COLORS change (e.g., colorblind mode)
     if (typeof window.updateMapLegend === 'function') window.updateMapLegend();
   };
 
