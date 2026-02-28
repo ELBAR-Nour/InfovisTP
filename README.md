@@ -92,26 +92,6 @@ The dashboard includes four core interactive visualizations:
 - **Hover Popups**: Summary statistics displayed on hover
 - **Zoom & Pan**: Native map navigation for exploring different regions
 
-### Part 4: Analytical Perspective ✓
-
-**Multi-class Classification Analysis**:
-- Treatment of Test Results as a 3-class classification problem
-- Identification of most influential features:
-  - Age group
-  - Medical condition
-  - Admission type
-  - Billing amount patterns
-  - Gender impact
-
-**Insights & Recommendations**:
-- Feature importance analysis from visualization patterns
-- Identification of potential biases in data
-- Proposed ML models:
-  - **Random Forest**: For feature importance and interpretability
-  - **Gradient Boosting (XGBoost)**: For high-accuracy predictions
-  - **Neural Networks**: For capturing complex non-linear relationships
-- Feature selection strategy based on analytical findings
-
 ## Technical Stack
 
 ### Frontend
@@ -146,15 +126,6 @@ InfovisTP/
 ├── data/
 │   └── healthcare_dataset.csv # Synthetic healthcare dataset
 ```
-
-## Getting Started
-
-### Quick Start (No Installation Required)
-**Already deployed!** Visit the live application: https://healthcare-dashboard-infovis.netlify.app/
-
-### Prerequisites
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- Internet connection (for loading ArcGIS API)
 
 ### Local Setup
 
@@ -229,40 +200,6 @@ InfovisTP/
 - [ ] Data comparison tools (hospital vs hospital, region vs region)
 - [ ] Mobile app version
 
-## Analytical Perspective: ML Model Recommendations
-
-### Problem Statement
-Multi-class classification of Test Results (Normal, Abnormal, Inconclusive) based on patient and hospital characteristics.
-
-### Recommended Models
-1. **Random Forest**
-   - Advantages: Feature importance ranking, handles non-linear relationships
-   - Use case: Understanding which features matter most
-
-2. **XGBoost / Gradient Boosting**
-   - Advantages: High accuracy, feature interaction detection, efficient
-   - Use case: Production prediction system
-
-3. **Neural Networks (Deep Learning)**
-   - Advantages: Captures complex patterns, handles large feature sets
-   - Use case: Large-scale healthcare systems with more data
-
-### Selected Features for Classification
-- Age group (engineered feature)
-- Medical condition
-- Admission type
-- Billing amount
-- Gender
-- Blood type
-- Medication type
-- Length of stay (engineered feature)
-
-### Potential Biases & Limitations
-- **Data Imbalance**: Test result classes may not be equally represented
-- **Missing Data**: Certain hospitals or regions may be underrepresented
-- **Temporal Bias**: Dataset snapshot may not reflect seasonal variations
-- **Demographic Bias**: Potential underrepresentation of certain age groups or genders
-- **Synthetic Data**: Real-world deployments require actual patient data with proper consent
 
 ## Contributing
 
@@ -271,13 +208,6 @@ This is a student project (TP Infovis 2025). For feedback or improvements, pleas
 ## License
 
 Academic use only - Part of Information Visualization course assignment.
-
-## References
-
-- [D3.js Documentation](https://d3js.org/)
-- [ArcGIS JavaScript API](https://developers.arcgis.com/javascript/)
-- [Healthcare Dataset - Kaggle](https://www.kaggle.com/datasets/prasad22/healthcare-dataset/data)
-- [Data Visualization Best Practices](https://www.interaction-design.org/literature/topics/data-visualization)
 
 ## Contact & Support
 
